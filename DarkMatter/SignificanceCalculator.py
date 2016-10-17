@@ -4,33 +4,6 @@ import contextlib
 import subprocess as sp
 import numpy as np
 
-def change_directory(destination_directory):
-    """ Temporarily changes the working directory. This is used with the 
-    context manager, `cd`, given below:
-
-    Example
-    --------
-    Here is an example of how one might use the function:
-
-        with cd('relative/path/to/directory'):
-            print(os.getcwd()) # Prints the working directory
-            subprocess.call('./run_external_program') # Runs some non-python program
-
-    Parameters
-    ----------
-    destination_directory : string
-        The directory to temporarily change the working directory to. 
-
-    """
-    cwd = os.getcwd()
-    os.chdir(destination_directory)
-    try: yield
-    except: pass
-    finally: os.chdir(cwd)
-
-cd = contextlib.contextmanager(change_directory)
-
-
 class SignificanceCalculator:
     """ Class to calculate significance for a simple counting experiment.
 
@@ -54,8 +27,8 @@ class SignificanceCalculator:
 
     the factor tau for this background would be:
 
-    ..math:
-    \tau = n_mC/(sigma_b * L)
+    ..math::
+    \\tau = n_mC/(sigma_b * L)
 
     Basically, the more Monte Carlo events you generate, that is, the greater
     the tau factor is, the more confident you can be that the number of 

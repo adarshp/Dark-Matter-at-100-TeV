@@ -13,7 +13,7 @@ class Process(object):
         self.model = model
         self.decay_channel = decay_channel
         self.mg5_generation_syntax = mg5_generation_syntax
-        self.energy = '100_TeV'
+        self.energy = str(energy) + 'TeV'
         self.index = str(index)
 
         self.common_path = '/'.join([self.process_type()+'s', self.name, 
@@ -32,7 +32,7 @@ class Process(object):
             f.write('import model {}\n'.format(self.model))
             f.write(self.mg5_generation_syntax+'\n')
             f.write('output '+self.directory)
-        sp.call(['./Tools/mg5/bin/mg5_aMC', proc_card], stdout = open(os.devnull, 'w'))
+        sp.call(['./Tools/mg5/bin/mg5_aMC', proc_card])
 
     def process_type(self):
         if self.model == 'sm': return 'Background'

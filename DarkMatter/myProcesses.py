@@ -5,65 +5,48 @@ from tqdm import tqdm
 import itertools as it
 from glob import glob
 
-signals = [SignalProcess(bp) for bp in benchmark_points] 
+MassCombination = namedtuple('MassCombination', 'mH mB')
 
-class myProcesses:
-    def __init__(self):
-        self.backgrounds = self.define_backgrounds()
-        self.signals = self.define_signals()
-        self.all_processes = self.signals + self.backgrounds
+def mass_combinations(min_higgsino_mass, max_higgsino_mass,
+                               higgsino_mass_step_size,min_bino_mass,
+                               max_bino_mass,bino_mass_step_size):
 
-    def define_backgrounds(self):
-        # Defining our processes
-        # tt
-        tt = Process('tt', 'Background')
-        tt.mg5_generation_syntax = """\
-        generate p p > t t~, (t > w+ b, w+ > l+ vl), (t~ > w- b~, w- > l- vl~)
-        """
-        tt.xsection = 17425.0 
+    """ Generate mass combinations of higgsino and bino masses. """
+    higgsino_masses = np.arange(min_higgsino_mass, max_higgsino_mass,
+                                higgsino_mass_step_size)
 
-        # tbW
-        tbW = Process('tbW', 'Background')
-        tbW.mg5_generation_syntax = """\
-        generate p p > t w- b~ / t~, w- > l- vl~
-        add process p p > t~ w+ b / t, w+ > l+ vl
-        """
-        tbW.xsection = 1488.0
+    bino_masses = np.arange(min_bino_mass, max_bino_mass, 
+                            bino_mass_step_size)
 
-        # bbWW
-        bbWW = Process('bbWW', 'Background')
-        bbWW.mg5_generation_syntax = """\
-        define vv = vl vl~
-        define w = w+ w-
-        define ll = l+ l-
-        define tt = t t~
-        define bb = b b~
-        generate p p > bb bb w w / tt, ( w > ll vv, w > ll vv )
-        """
-        bbWW.xsection = 73.0
+    tuples = list(it.product(higgsino_masses, bino_masses))
+    namedtuples = [MassCombination(*_tuple) for _tuple in tuples] 
+    return filter(lambda x.mH > x.mB, namedtuples)
 
-        def set_common_bg_attributes(background):
-            """ Set common background process attributes. """
+signals = [SignalProcess(bp) for bp in mass_combinations(500.0, 4000.0, 100.0,
+                                                         25.0, 2500.0, 100.0)]
 
-            background.process_type = "Background"
-            background.run_card = "Cards/run_cards/run_card.dat"
-            
-        for background in [tt, tbW, bbWW]:
-            set_common_bg_attributes(background)
-        
-        return [tt, tbW, bbWW]
+tt_collection = [Process(
+    'tt','sm','bbllvv',
+    """generate p p > t t~, (t > w+ b, w+ > l+ vl), (t~ > w- b~, w- > l- vl~)""",
+    100, i) for i in range(0, 30)]
 
-    def define_signals(self):
-        # Check if the signal is legit - are there even any events generated?
+tbW_collection = [Process(
+    'tbW','sm','bbllvv',
+    """generate p p > t w- b~ / t~, w- > l- vl~
+    add process p p > t~ w+ b / t, w+ > l+ vl""",100, i) for i in range(0, 30)]
 
-        def isLegit(SignalProcess):
-            filelist = glob(SignalProcess.output_directory+'/Events/*/*.lhco.gz')            
+bbWW_collection = [Process(
+    'bbWW','sm','bbllvv',"""\
+    define vv = vl vl~
+    define w = w+ w-
+    define ll = l+ l-
+    define tt = t t~
+    define bb = b b~
+    generate p p > bb bb w w / tt, ( w > ll vv, w > ll vv )""",
+    100, i) for i in range(0, 30)]
+   
+backgrounds = tt_collection + tbW_collection + bbWW_collection
 
-            if len(filelist) != 0:
-                return True
-
-        list_of_signals = filter(lambda SignalProcess: isLegit(SignalProcess), 
-            [SignalProcess(combination) for combination in mass_combinations])
-
-        return(list_of_signals)
-
+#tt.xsection = 17425.0 
+#tbW.xsection = 1488.0
+#bbWW.xsection = 73.0
