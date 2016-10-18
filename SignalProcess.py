@@ -31,32 +31,6 @@ class SignalProcess(Process):
         self.param_card = None
         self.xsection = self.get_xsection()
 
-    def run_susyhit(self, susyhit_directory, suspect_input_template):
-        """
-        Run SUSY-HIT for a particular mass combination, copy the resulting 
-        SLHA spectrum to the Prospino cards directory.
-
-        Args:
-            mass_combination (tuple): Mass combination
-        Returns:
-            nothing
-        """
-
-        susyhit_input_card_path = susyhit_directory+'/suspect2_lha.in'
-
-        with open(susyhit_input_card_path, 'w') as f:
-            f.write(suspect_input_template.format(
-                                    higgsino_mass=str(self.higgsino_mass),
-                                    bino_mass=str(self.bino_mass), 
-                                    wino_mass=str(self.wino_mass),
-                                    tan_beta=str(self.tan_beta)))
-
-        with cd(susyhit_directory):
-            subprocess.call('./run', stdout = devnull)
-
-        sh.copy(susyhit_directory+'/slhaspectrum.in', 'prospino_input/'+self.name+'_slhaspectrum.in')
-        sh.copy(susyhit_directory+'/susyhit_slha.out', 'Cards/param_cards/'+self.name+'_param_card.dat')
-
     def make_original_input_list(self, analysis_directory):
         """ Gathers filepaths for the events and writes them to the Input sub-
         directory of the analysis directory. """
@@ -74,20 +48,6 @@ class SignalProcess(Process):
         self.param_card = 'Cards/param_cards/'+self.name+'_param_card.dat'
         sh.copy(self.param_card, self.output_directory+'/Cards/param_card.dat')
 
-    def run_prospino(self, input_spectrum, prospino_directory,
-                     output_directory):
-
-        """ Runs Prospino to get the Higgsino pair production cross section. """
-
-        sh.copy(input_spectrum, prospino_directory+'/prospino.in.les_houches')
-
-        with cd(prospino_directory):
-            subprocess.call(['make', 'clean'], stdout = devnull)
-            subprocess.call('make', stdout = devnull)
-            subprocess.call('./prospino_2.run', stdout = devnull)
-
-        sh.copy(prospino_directory+'/prospino.dat', 
-                output_directory+'/'+self.name+'_xsection.dat')
 
     def get_xsection(self):
         with open('prospino_output/'+self.name+'_xsection.dat', 'r') as f:

@@ -1,9 +1,4 @@
-import os, glob
-import subprocess as sp
 from Process import Process
-import shutil as sh
-from helpers import cd, modify_file
-from collections import namedtuple
 
 class SignalProcess(Process):
     def __init__(self, benchmark_point):
@@ -15,6 +10,8 @@ class SignalProcess(Process):
             A named tuple containing the higgsino mass and bino mass.
         """
         self.bp = benchmark_point
+        self.mH = self.bp.mH
+        self.mB = self.bp.mB
         Process.__init__(self, 
             'Signal', 'mssm-full', 'bbll_MET', 
         """import model mssm-full
@@ -23,4 +20,4 @@ class SignalProcess(Process):
         """, 100, self.index()) 
 
     def index(self):
-        return '_'.join(["mH", str(int(self.bp.mH)), "mB", str(int(self.bp.mB))])
+        return '_'.join(["mH", str(int(self.mH)), "mB", str(int(self.mB))])

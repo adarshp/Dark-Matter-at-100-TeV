@@ -1,7 +1,7 @@
 import re, os
 import subprocess as sp
 import shutil as sh
-from helpers import *
+from helpers import cd, modify_file
 from ClusterConfiguration import myClusterConfig
 
 class Process(object):
@@ -13,7 +13,7 @@ class Process(object):
         self.model = model
         self.decay_channel = decay_channel
         self.mg5_generation_syntax = mg5_generation_syntax
-        self.energy = str(energy) + 'TeV'
+        self.energy = str(energy) + '_TeV'
         self.index = str(index)
 
         self.common_path = '/'.join([self.process_type()+'s', self.name, 
