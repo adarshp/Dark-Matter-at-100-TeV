@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DarkMatter.Analysis &mdash; Dark Matter @ 100 TeV 0.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Dark Matter @ 100 TeV 0.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for DarkMatter.Analysis</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="Analysis"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis">[docs]</a><span></span><span class="k">class</span> <span class="nc">Analysis</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cuts</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">histos</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">region_names</span> <span class="o">=</span> <span class="bp">None</span>
+        
+<div class="viewcode-block" id="Analysis.write_includes"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_includes">[docs]</a>    <span class="k">def</span> <span class="nf">write_includes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#include &quot;SampleAnalyzer/User/Analyzer/Analysis.h&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;using namespace MA5;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Analysis.write_begin_initialize"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_begin_initialize">[docs]</a>    <span class="k">def</span> <span class="nf">write_begin_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;bool Analysis::Initialize(const MA5::Configuration&amp; cfg, const std::map&lt;std::string,std::string&gt;&amp; parameters) {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">PHYSICS-&gt;recConfig().Reset();</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_names</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Manager()-&gt;AddRegionSelection(&quot;{}&quot;);</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Manager()-&gt;AddCut(&quot;{}&quot;, &quot;Signal&quot;);</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">histo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">histos</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Manager()-&gt;AddHisto({});</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">histos</span><span class="o">.</span><span class="n">histo_properties_string</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Analysis.write_end_initialize"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_end_initialize">[docs]</a>    <span class="k">def</span> <span class="nf">write_end_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">return true;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Analysis.write_initialize_block"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_initialize_block">[docs]</a>    <span class="k">def</span> <span class="nf">write_initialize_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_begin_initialize</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_end_initialize</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Analysis.write_pre_execute"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_pre_execute">[docs]</a>    <span class="k">def</span> <span class="nf">write_pre_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">        bool Analysis::Execute(SampleFormat&amp; sample, const EventFormat&amp; event) {</span>
+<span class="s2">            double myEventWeight = 1.;</span>
+<span class="s2">            Manager()-&gt;InitializeForNewEvent(myEventWeight);</span>
+
+<span class="s2">            // Declaration of all containers</span>
+<span class="s2">            std::vector&lt;const RecLeptonFormat*&gt; electrons, muons, leptons;</span>
+<span class="s2">            std::vector&lt;const RecJetFormat*&gt; jets, b_jets;</span>
+
+<span class="s2">            // Clear particle containers</span>
+
+<span class="s2">            electrons.clear();</span>
+<span class="s2">            muons.clear(); </span>
+<span class="s2">            leptons.clear();</span>
+<span class="s2">            jets.clear(); </span>
+<span class="s2">            b_jets.clear();</span>
+
+<span class="s2">            // Filling all the containers</span>
+<span class="s2">            for (unsigned int i = 0; i &lt; event.rec()-&gt;electrons().size(); i++) {</span>
+<span class="s2">                const RecLeptonFormat* electron = &amp;(event.rec()-&gt;electrons()[i]);</span>
+<span class="s2">                if (electron-&gt;pt() &gt; 15. and fabs(electron-&gt;eta()) &lt; 2.5) {</span>
+<span class="s2">                    electrons.push_back(electron);</span>
+<span class="s2">                    leptons.push_back(electron);</span>
+<span class="s2">                }</span>
+<span class="s2">            }</span>
+
+<span class="s2">            for (unsigned int i = 0; i &lt; event.rec()-&gt;muons().size(); i++) {</span>
+<span class="s2">                const RecLeptonFormat* muon = &amp;(event.rec()-&gt;muons()[i]);</span>
+<span class="s2">                if (muon-&gt;pt() &gt; 15. and fabs(muon-&gt;eta()) &lt; 2.5) {</span>
+<span class="s2">                    muons.push_back(muon);</span>
+<span class="s2">                    leptons.push_back(muon);</span>
+<span class="s2">                }</span>
+<span class="s2">            }</span>
+
+<span class="s2">            for (unsigned int i = 0; i &lt; event.rec()-&gt;jets().size(); i++) {</span>
+<span class="s2">                const RecJetFormat* jet = &amp;(event.rec()-&gt;jets()[i]);</span>
+<span class="s2">                jets.push_back(jet);</span>
+<span class="s2">                if (jet-&gt;btag() == true and jet-&gt;pt() &gt; 30. and fabs(jet-&gt;eta()) &lt; 2.5) {</span>
+<span class="s2">                    b_jets.push_back(jet);</span>
+<span class="s2">                }</span>
+<span class="s2">            }</span>
+
+<span class="s2">            // Sorting jets and leptons by PT</span>
+<span class="s2">            SORTER-&gt;sort(jets, PTordering);</span>
+<span class="s2">            SORTER-&gt;sort(leptons, PTordering);</span>
+<span class="s2">            SORTER-&gt;sort(b_jets, PTordering);</span>
+
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Analysis.write_begin_finalize"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_begin_finalize">[docs]</a>    <span class="k">def</span> <span class="nf">write_begin_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;void Analysis::Finalize(const SampleFormat&amp; summary, const std::vector&lt;SampleFormat&gt;&amp; files) {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Analysis.write_end_finalize"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_end_finalize">[docs]</a>    <span class="k">def</span> <span class="nf">write_end_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">return;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Analysis.write_finalize_block"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_finalize_block">[docs]</a>    <span class="k">def</span> <span class="nf">write_finalize_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_begin_finalize</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_end_finalize</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Analysis.write_analysis_cpp"><a class="viewcode-back" href="../../DarkMatter.html#DarkMatter.Analysis.Analysis.write_analysis_cpp">[docs]</a>    <span class="k">def</span> <span class="nf">write_analysis_cpp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">):</span>
+        <span class="n">analysis_cpp_file</span> <span class="o">=</span> <span class="n">dirname</span><span class="o">+</span><span class="s1">&#39;/Build/SampleAnalyzer/User/Analyzer/Analysis.cpp&#39;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">analysis_cpp_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_includes</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_execute_block</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_initialize_block</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_finalize_block</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Dark Matter @ 100 TeV</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="simple">
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Adarsh Pyarelal.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

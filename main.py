@@ -31,17 +31,18 @@ def run_prospino(signal, input_spectrum, prospino_directory,
     sh.copy(prospino_directory+'/prospino.dat', 
             output_directory+'/'+signal.name+'_xsection.dat')
 
+def create_mg5_directories():
+    for signal in tqdm(myProcesses.signals[0:2]):
+        signal.create_directory()
+        sh.copy('Cards/delphes_cards/FCChh.tcl', 
+                signal.directory+'/Cards/delphes_card.dat')
+        sh.copy('Cards/run_cards/run_card.dat', 
+                signal.directory+'/Cards/run_card.dat')
+        sh.copy('Cards/param_cards/'+signal.name+'_param_card.dat', 
+                signal.directory+'/Cards/param_card.dat')
+
+# def run_susyhit(signal)
 def main():   
-    # for signal in tqdm(myProcesses.signals[0:2]):
-        # signal.create_directory()
-        # sh.copy('Cards/delphes_cards/FCChh.tcl', 
-                # signal.directory+'/Cards/delphes_card.dat')
-
-        # sh.copy('Cards/run_cards/run_card.dat', 
-                # signal.directory+'/Cards/run_card.dat')
-
-        # run_susyhit(signal)
-
     print(len(myProcesses.signals))
 
 if __name__ == '__main__':
