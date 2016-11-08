@@ -29,7 +29,7 @@
 # Warning: Do not generate more than 1M events in a single run       *
 # If you want to run Pythia, avoid more than 50k events in a run.    *
 #*********************************************************************
-  500 = nevents ! Number of unweighted events requested 
+  5000 = nevents ! Number of unweighted events requested 
   0   = iseed   ! rnd seed (0=assigned automatically=default))
 #*********************************************************************
 # Collider type and energy                                           *
@@ -67,7 +67,7 @@
 #*********************************************************************
 # Matching - Warning! ickkw > 1 is still beta
 #*********************************************************************
- 0 = ickkw            ! 0 no matching, 1 MLM, 2 CKKW matching
+ 1 = ickkw            ! 0 no matching, 1 MLM, 2 CKKW matching
  1 = highestmult      ! for ickkw=2, highest mult group
  1 = ktscheme         ! for ickkw=1, 1 Durham kT, 2 Pythia pTE
  1.0 = alpsfact         ! scale factor for QCD emission vx
@@ -259,7 +259,7 @@
 #*********************************************************************
 # Jet measure cuts                                                   *
 #*********************************************************************
- 0.0   = xqcut   ! minimum kt jet measure between partons
+ 40.0   = xqcut   ! minimum kt jet measure between partons
 #*********************************************************************
 #
 #*********************************************************************

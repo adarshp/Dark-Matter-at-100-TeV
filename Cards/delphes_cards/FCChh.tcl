@@ -8,7 +8,8 @@
 #  Released on: Oct 02th, 2016
 #
 #  Configuration: FCC-hh generic detector without dipole in the forward region, no pile-up
-#
+# Modified by Adarsh Pyarelal to set DeltaRmax 
+# for electrons and muons to 0.05 instead of 0.4.
 #######################################
 # Order of execution of various modules
 #######################################
@@ -596,7 +597,7 @@ module Isolation ElectronIsolation {
 
   set OutputArray electrons
 
-  set DeltaRMax 0.3
+  set DeltaRMax 0.05
 
   set PTMin 0.5
 
@@ -616,7 +617,7 @@ module Isolation MuonIsolation {
 
   set OutputArray muons
 
-  set DeltaRMax 0.3
+  set DeltaRMax 0.05
 
   set PTMin 0.5
 
