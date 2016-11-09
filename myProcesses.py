@@ -1,28 +1,21 @@
+import os
 import sys
-sys.path.insert(0, '../clusterpheno')
-from clusterpheno.Process import Process
-from clusterpheno.helpers import cd, modify_file
-import numpy as np
-from tqdm import tqdm
 import itertools as it
-from glob import glob
 import shutil as sh
 from collections import namedtuple
+import subprocess as sp
+sys.path.insert(0, '../clusterpheno')
+from clusterpheno.Process import Process
+from clusterpheno.helpers import cd, modify_file, get_SAF_objects, Counter
+import numpy as np
 
-MassCombination = namedtuple('MassCombination', 'mH mB')
+class Counter:
+    def __init__(self, counter_object):
+        cdata = counter_object.cdata.split('\n')
+        self.name = cdata[1].split('\"')[1]
+        self.nevents = int(cdata[2].split(' ')[0])
 
-def mass_combinations(mH_min, mH_max, mH_step_size, mB_min, mB_max, mB_step_size):
-
-    """ Generate mass combinations of higgsino and bino masses. """
-
-    higgsino_masses = np.arange(mH_min, mH_max, mH_step_size)
-    bino_masses = np.arange(mB_min, mB_max, mB_step_size)
-
-    tuples = list(it.product(higgsino_masses, bino_masses))
-    namedtuples = [MassCombination(*_tuple) for _tuple in tuples] 
-    return filter(lambda x: x.mH > x.mB, namedtuples)
-
-class SignalProcess(Process):
+class Signal(Process):
     def __init__(self, benchmark_point):
         """
         Parameters
@@ -40,10 +33,10 @@ class SignalProcess(Process):
         """import model mssm-full
         generate p p > n2 n3, (n2 > n1 z, z > l+ l-), (n3 > n1 h1, h1 > b b~)
         add process p p > n2 n3, (n3 > n1 z, z > l+ l-), (n2 > n1 h1, h1 > b b~)
-        """, 100, self.index) 
+        """, 100, self.index)
 
     def get_xsection(self):
-        with open('prospino_output/'+self.name+'_xsection.dat', 'r') as f:
+        with open('Cards/prospino_output_xsections/'+self.index+'_xsection.dat', 'r') as f:
             xs = float(f.readlines()[0].split()[-1:][0])
 
         xs = xs*1000.0 # Convert from attobarns to fb
@@ -73,8 +66,44 @@ class SignalProcess(Process):
         sh.rmtree(self.directory+'/MakeFeatureArray')
         sh.copytree('MakeFeatureArray', self.directory+'/MakeFeatureArray')
 
+    def run_prospino(self):
+        """ Runs Prospino to get the Higgsino pair production cross section. """
 
-signals = [SignalProcess(bp) for bp in mass_combinations(500.0, 4000.0, 100.0,
+        input_spectrum = 'Cards/prospino_input/'+self.index+'_slhaspectrum.in'
+        sh.copy(input_spectrum, 'Tools/Prospino2/prospino.in.les_houches')
+
+        with cd('Tools/Prospino2'):
+            devnull = open(os.devnull, 'w')
+            sp.call(['make', 'clean'], stdout = devnull, stderr = devnull)
+            sp.call('make', stdout = devnull, stderr = devnull)
+            sp.call('./prospino_2.run', stdout = devnull, stderr = devnull)
+            sh.copy('prospino.dat',
+                '../../Cards/prospino_output_xsections/'+self.index+'_xsection.dat')
+
+    def make_feature_array(self):
+        with cd(self.directory+'/MakeFeatureArray/Build'):
+            devnull = open(os.devnull, 'w')
+            sp.call('./analyze.sh', shell = True,
+                    stdout = devnull)
+
+    def get_original_nevents(self):
+        filepath = self.directory+'/MakeFeatureArray/Output/Signal/Analysis/Cutflows/Signal'
+        return Counter((get_SAF_objects(filepath)).InitialCounter).nevents
+
+MassCombination = namedtuple('MassCombination', 'mH mB')
+
+def mass_combinations(mH_min, mH_max, mH_step_size, mB_min, mB_max, mB_step_size):
+
+    """ Generate mass combinations of higgsino and bino masses. """
+
+    higgsino_masses = np.arange(mH_min, mH_max, mH_step_size)
+    bino_masses = np.arange(mB_min, mB_max, mB_step_size)
+
+    tuples = list(it.product(higgsino_masses, bino_masses))
+    namedtuples = [MassCombination(*_tuple) for _tuple in tuples]
+    return filter(lambda x: x.mH > x.mB, namedtuples)
+
+signals = [Signal(bp) for bp in mass_combinations(500.0, 4000.0, 100.0,
                                                          25.0, 2500.0, 100.0)]
 
 tt_collection = [Process(
