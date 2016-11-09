@@ -80,11 +80,7 @@ class Signal(Process):
             sh.copy('prospino.dat',
                 '../../Cards/prospino_output_xsections/'+self.index+'_xsection.dat')
 
-    def make_feature_array(self):
-        with cd(self.directory+'/MakeFeatureArray/Build'):
-            devnull = open(os.devnull, 'w')
-            sp.call('./analyze.sh', shell = True,
-                    stdout = devnull)
+
 
     def get_original_nevents(self):
         filepath = self.directory+'/MakeFeatureArray/Output/Signal/Analysis/Cutflows/Signal'
