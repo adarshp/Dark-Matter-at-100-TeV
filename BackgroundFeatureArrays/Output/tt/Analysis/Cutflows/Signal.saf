@@ -3,51 +3,51 @@
 
 <InitialCounter>
 "Initial number of events"      #
-223980          0               # nentries
-2.239800e+05    0.000000e+00    # sum of weights
-2.239800e+05    0.000000e+00    # sum of weights^2
+1348920         0               # nentries
+1.348920e+06    0.000000e+00    # sum of weights
+1.348920e+06    0.000000e+00    # sum of weights^2
 </InitialCounter>
 
 <Counter>
 "At least one lepton"           # 1st cut
-223178          0               # nentries
-2.231780e+05    0.000000e+00    # sum of weights
-2.231780e+05    0.000000e+00    # sum of weights^2
+1344457         0               # nentries
+1.344457e+06    0.000000e+00    # sum of weights
+1.344457e+06    0.000000e+00    # sum of weights^2
 </Counter>
 
 <Counter>
 "Lepton trigger"                # 2st cut
-48377           0               # nentries
-4.837700e+04    0.000000e+00    # sum of weights
-4.837700e+04    0.000000e+00    # sum of weights^2
+294650          0               # nentries
+2.946500e+05    0.000000e+00    # sum of weights
+2.946500e+05    0.000000e+00    # sum of weights^2
 </Counter>
 
 <Counter>
 "2 leptons"                     # 3st cut
-24213           0               # nentries
-2.421300e+04    0.000000e+00    # sum of weights
-2.421300e+04    0.000000e+00    # sum of weights^2
+150186          0               # nentries
+1.501860e+05    0.000000e+00    # sum of weights
+1.501860e+05    0.000000e+00    # sum of weights^2
 </Counter>
 
 <Counter>
 "SF leptons"                    # 4st cut
-12430           0               # nentries
-1.243000e+04    0.000000e+00    # sum of weights
-1.243000e+04    0.000000e+00    # sum of weights^2
+76994           0               # nentries
+7.699400e+04    0.000000e+00    # sum of weights
+7.699400e+04    0.000000e+00    # sum of weights^2
 </Counter>
 
 <Counter>
 "OS leptons"                    # 5st cut
-11972           0               # nentries
-1.197200e+04    0.000000e+00    # sum of weights
-1.197200e+04    0.000000e+00    # sum of weights^2
+74909           0               # nentries
+7.490900e+04    0.000000e+00    # sum of weights
+7.490900e+04    0.000000e+00    # sum of weights^2
 </Counter>
 
 <Counter>
 "2 b jets"                      # 6st cut
-3003            0               # nentries
-3.003000e+03    0.000000e+00    # sum of weights
-3.003000e+03    0.000000e+00    # sum of weights^2
+17355           0               # nentries
+1.735500e+04    0.000000e+00    # sum of weights
+1.735500e+04    0.000000e+00    # sum of weights^2
 </Counter>
 
 <SAFfooter>
