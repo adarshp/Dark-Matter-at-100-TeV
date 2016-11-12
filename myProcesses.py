@@ -84,6 +84,7 @@ class Signal(Process):
         with cd(self.directory+'/MakeFeatureArray/Build'):
             devnull = open(os.devnull, 'w')
             sp.call('./analyze.sh', shell = True,
+                    stderr = devnull,
                     stdout = devnull)
 
     def get_original_nevents(self):
