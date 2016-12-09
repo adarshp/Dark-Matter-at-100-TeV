@@ -20,7 +20,7 @@ class Signal(Process):
         """
         Parameters
         ----------
-        
+
         benchmark_point : namedtuple
             A named tuple containing the higgsino mass and bino mass.
         """
@@ -28,8 +28,8 @@ class Signal(Process):
         self.mH = self.bp.mH
         self.mB = self.bp.mB
         self.index = '_'.join(["mH", str(int(self.mH)), "mB", str(int(self.mB))])
-        Process.__init__(self, 
-            'H1H2', 'mssm-full', 'bbll_MET', 
+        Process.__init__(self,
+            'H1H2', 'mssm-full', 'bbll_MET',
         """import model mssm-full
         generate p p > n2 n3, (n2 > n1 z, z > l+ l-), (n3 > n1 h1, h1 > b b~)
         add process p p > n2 n3, (n3 > n1 z, z > l+ l-), (n2 > n1 h1, h1 > b b~)
@@ -52,11 +52,11 @@ class Signal(Process):
                 f.write(suspect_input_template.format(mH=str(self.mH),
                         mB=str(self.mB), mW="3000.",tb="10.0"))
             sp.call('./run', stdout = open(os.devnull, 'w'))
-            sh.copy('slhaspectrum.in', 
+            sh.copy('slhaspectrum.in',
                 '../../Cards/prospino_input/'+self.index+'_slhaspectrum.in')
             sh.copy('susyhit_slha.out', '../../Cards/param_cards/'+self.index+'_param_card.dat')
 
-    
+
     def copy_param_card(self):
         name = 'mH_{}_mB_{}'.format(str(int(self.mH)), str(int(self.mB)))
         sh.copy('Cards/param_cards/{}_param_card.dat'.format(name),
@@ -65,6 +65,20 @@ class Signal(Process):
     def copy_bdt_analysis(self):
         sh.rmtree(self.directory+'/MakeFeatureArray')
         sh.copytree('MakeFeatureArray', self.directory+'/MakeFeatureArray')
+
+    def write_pbs_script(self, parser, nruns):
+        with open(parser.get('PBS Templates', 'generate_script'), 'r') as f:
+            string = f.read()
+        with open(self.directory+'/generate_events.pbs', 'w') as f:
+            f.write(string.format(jobname = str(int(self.mH))+'_'+str(int(self.mB)),
+                                  username = parser.get('Cluster', 'username'),
+                                  email = parser.get('Cluster', 'email'),
+                                  group_list = parser.get('Cluster', 'group_list'),
+                                  nruns = str(nruns),
+                                  cput = str(7*nruns),
+                                  walltime = str(7*nruns),
+                                  cwd = os.getcwd(),
+                                  mg5_process_dir = self.directory))
 
     def run_prospino(self):
         """ Runs Prospino to get the Higgsino pair production cross section. """
@@ -80,16 +94,12 @@ class Signal(Process):
             sh.copy('prospino.dat',
                 '../../Cards/prospino_output_xsections/'+self.index+'_xsection.dat')
 
-<<<<<<< HEAD
     def make_feature_array(self):
         with cd(self.directory+'/MakeFeatureArray/Build'):
             devnull = open(os.devnull, 'w')
             sp.call('./analyze.sh', shell = True,
                     stderr = devnull,
                     stdout = devnull)
-=======
-
->>>>>>> d8147941498f32272ec808eb4570ca19f2a3c6fd
 
     def get_original_nevents(self):
         filepath = self.directory+'/MakeFeatureArray/Output/Signal/Analysis/Cutflows/Signal'
@@ -130,9 +140,9 @@ bbWW_collection = [Process(
     define bb = b b~
     generate p p > bb bb w w / tt, ( w > ll vv, w > ll vv )""",
     100, i) for i in range(0, 30)]
-   
+
 backgrounds = tt_collection + tbW_collection + bbWW_collection
 
-#tt.xsection = 17425.0 
+#tt.xsection = 17425.0
 #tbW.xsection = 1488.0
 #bbWW.xsection = 73.0

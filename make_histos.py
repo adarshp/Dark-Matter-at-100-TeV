@@ -14,6 +14,7 @@ from myProcesses import *
 import matplotlib.pyplot as plt
 import itertools as it
 import untangle
+from BDTClassifier import BDTClassifier
 
 colors = {'tt': 'r', 'Signal': 'DarkBlue', 'tbW': 'green'}
 ylabels = {'m_R': r'$\frac{1}{\sigma}\frac{dM_R}{d\sigma}$',
@@ -82,13 +83,12 @@ def make_bdt_response_histo(BDTClassifier):
 def main():
     if sys.argv[1] == '--mR':
         make_mR_histo()
-    else if sys.argv[1] == '--mTR':
+    elif sys.argv[1] == '--mTR':
         make_mTR_histo()
-    else if sys.argv[1] == '--bdt':
-        mySignal = filter(lambda x: x.mH == 2000 and x.mB == 25,signals)[0]
+    elif sys.argv[1] == '--bdt':
+        mySignal = filter(lambda x: x.mH == 1000 and x.mB == 25,signals)[0]
         classifier = BDTClassifier(mySignal)
         make_bdt_response_histo(classifier)
-    else: print('options: --mR, --mTR, --bdt')
 
 if __name__ == '__main__':
     main()
