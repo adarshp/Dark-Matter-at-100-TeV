@@ -7,24 +7,38 @@ from clusterpheno.helpers import *
 import matplotlib
 matplotlib.use('Agg')
 matplotlib.rc('text', usetex = True)
-matplotlib.rc('xtick', labelsize = 20)
-matplotlib.rc('ytick', labelsize = 20)
-matplotlib.rc('font', size = 20)
+matplotlib.rc('xtick', labelsize = 11)
+matplotlib.rc('ytick', labelsize = 11)
+matplotlib.rc('font', size = 11)
 from myProcesses import *
 import matplotlib.pyplot as plt
+figwidth = 3.06
+plt.rcParams['figure.figsize'] = (figwidth,figwidth)
 import itertools as it
+import pandas as pd
 import untangle
 from BDTClassifier import BDTClassifier
+import matplotlib.patches as mpatches
 
-colors = {'tt': 'r', 'Signal': 'DarkBlue', 'tbW': 'green'}
-ylabels = {'m_R': r'$\frac{1}{\sigma}\frac{dM_R}{d\sigma}$',
-           'm_T_R': r'$\frac{1}{\sigma}\frac{dM_T^R}{d\sigma}$'}
-xlabels = {'m_R': r'$M_R$ $\mathrm(GeV)$',
-           'm_T_R': r'$M_T^R$ $\mathrm(GeV)$'}
-
+processes = ['Signal', 'tt', 'tbW',
+            'bbWW',
+            ]
+colors = {'Signal': 'DarkBlue', 
+          'tt': 'r',
+          'tbW': 'green',
+          'bbWW':'orange',
+          }
+ylabels = {'m_R': r'$\frac{1}{\sigma}\frac{d\sigma}{dM_R}$',
+           'm_T_R': r'$\frac{1}{\sigma}\frac{d\sigma}{dM_T^R}$'}
+xlabels = {'m_R': r'$M_R$ $\mathrm{(GeV)}$',
+           'm_T_R': r'$M_T^R$ $\mathrm{(GeV)}$'}
+patches = {}
+for process in processes:
+    patches[process] = mpatches.Rectangle((1,1),0.5,0.5, color = colors[process],
+                                          label = r'${}$'.format(process), alpha = 0.4)
 def make_histo(histo_name):
 
-    for process_name in ['Signal','tt', 'tbW']:
+    for process_name in processes:
         with cd('CutAndCount/Output/'+process_name+'/Analysis_0/Histograms/'):
             convert_SAF_to_XML('histos.saf')
             objects = (untangle.parse('histos.xml')).root
@@ -39,44 +53,69 @@ def make_histo(histo_name):
             plt.style.use('ggplot')
             plt.bar(index, bin_contents, width = (xmax - xmin)/nbins, alpha = 0.4,
                     color = colors[process_name],
-                    label = process_name)
+                    label = r'${}$'.format(process_name))
             plt.xlim(xmin, xmax)
 
 def make_mTR_histo():
-    make_histo('m_T_R')
-    plt.ylabel(ylabels['m_T_R'], fontsize = 20)
-    plt.xlabel(xlabels['m_T_R'], fontsize = 20)
-    plt.text(1100, 0.35, r'$\mathcal{L} = 3000$ $\mathrm{fb}^{-1}$', fontsize = 20)
-    plt.text(1100, 0.040, r'$\mathit{Signal}$', fontsize = 20, color = colors['Signal'])
-    plt.text(250, 0.27, r'$tt$', fontsize = 20, color = colors['tt'])
-    plt.text(325, 0.075, r'$tbW$', fontsize = 20, color = colors['tbW'])
-    plt.ylim(0, 0.4)
+    make_histo('mTR')
+    plt.ylabel(ylabels['m_T_R'], fontsize = 11)
+    plt.xlabel(xlabels['m_T_R'], fontsize = 11)
+    plt.ylim(0, 0.3)
+    plt.legend(handles = [patches[process] for process in processes], fontsize = 10)
+    axes = plt.axes()
+    plt.locator_params(nbins = 6)
+    axes.tick_params(axis = 'x', labelsize = 11)
+    axes.tick_params(axis = 'y', labelsize = 11)
+    axes.xaxis.set_label_coords(0.5, -0.20)
     plt.tight_layout()
-    plt.savefig('images/m_T_R.pdf', dpi = 300)
+    plt.savefig('images/mTR.pdf', dpi = 300)
     plt.close()
 
 def make_mR_histo():
     make_histo('m_R')
-    plt.ylabel(ylabels['m_R'], fontsize = 20)
-    plt.xlabel(xlabels['m_R'], fontsize = 20)
-    plt.text(1400, 0.050, r'$\mathit{Signal}$', fontsize = 20)
-    plt.text(700, 0.075, r'$tbW$', fontsize = 20)
-    plt.text(600, 0.110, r'$tt$', fontsize = 20)
-    plt.ylim(0, 0.2)
-    plt.savefig('images/m_R.pdf')
+    plt.ylabel(ylabels['m_R'])
+    plt.xlabel(xlabels['m_R'])
+    plt.legend(handles = [patches[process] for process in processes], fontsize = 10)
+    axes = plt.axes()
+    plt.locator_params(nbins = 6)
+    axes.xaxis.set_label_coords(0.5, -0.2)
+    plt.ylim(0, 0.12)
+    plt.tight_layout()
+    plt.savefig('images/mR.pdf')
     plt.close()
 
-def make_bdt_response_histo(BDTClassifier):
-    d1 = BDTClassifier.clf.decision_function(BDTClassifier.test_sets['Signal'])
-    d2 = BDTClassifier.clf.decision_function(BDTClassifier.test_sets['tt'])
-    d3 = BDTClassifier.clf.decision_function(BDTClassifier.test_sets['tbW'])
-    # d4 = BDTClassifier.clf.decision_function(BDTClassifier.test_sets['bbWW'])
+def collect_bdt_responses(BDTClassifier):
+    for process in processes:
+        with open('intermediate_results/bdt_responses/'+process+'.txt', 'w') as f:
+            responses = BDTClassifier.clf.decision_function(BDTClassifier.test_sets[process])
+            f.write('\n'.join(map(lambda x: str(x), responses)))
+
+def make_bdt_histo():
     matplotlib.style.use('ggplot')
-    plt.hist(d1, bins = 100, color = 'DarkBlue', normed = True, alpha = 0.4)
-    plt.hist(d2, bins = 100, color = 'Crimson', normed = True, alpha = 0.4)
-    plt.hist(d3, bins = 100, color = 'Green', normed = True, alpha = 0.4)
-    # plt.hist(d4, bins = 40, color = 'Orange', normed = True)
-    plt.xlim(-10, 10)
+    responses = {}
+    for process in processes:
+        with open('intermediate_results/bdt_responses/'+process+'.txt', 'r') as f:
+            responses[process] = map(lambda x: float(x), f.readlines())
+
+    def weights(array):
+        return np.ones_like(array)/float(len(array))
+    plt.hist(responses['Signal'], weights = weights(responses['Signal']), bins = 30,
+             color = 'DarkBlue', alpha = 0.4, label = r'$Signal$')
+    plt.hist(responses['tt'], weights = weights(responses['tt']), bins = 30,
+             color = 'Crimson', alpha = 0.4, label = r'$tt$')
+    plt.hist(responses['tbW'], weights = weights(responses['tbW']), bins = 30,
+             color = 'Green', alpha = 0.4, label = r'$tbW$')
+    plt.hist(responses['bbWW'], weights = weights(responses['bbWW']), bins = 30,
+             color = 'orange', alpha = 0.4, label = r'$bbWW$')
+    plt.xlim(-10, 11)
+    plt.ylim(0,0.3)
+    plt.ylabel(r'$\frac{1}{\sigma}\frac{d\sigma}{dx}$',fontsize = 11)
+    plt.xlabel(r'$\mathrm{BDT}$ $\mathrm{Response}$',fontsize = 11)
+    axes = plt.axes()
+    plt.locator_params(nbins = 8)
+    axes.xaxis.set_label_coords(0.5, -0.2)
+    plt.legend(handles = [patches[process] for process in processes], fontsize = 11, loc = 'upper center')
+    plt.tight_layout()
     plt.savefig('images/bdt_response.pdf')
     plt.close()
 
@@ -85,10 +124,14 @@ def main():
         make_mR_histo()
     elif sys.argv[1] == '--mTR':
         make_mTR_histo()
-    elif sys.argv[1] == '--bdt':
+    elif sys.argv[1] == '--collect_bdt_rep':
         mySignal = filter(lambda x: x.mH == 1000 and x.mB == 25,signals)[0]
         classifier = BDTClassifier(mySignal)
-        make_bdt_response_histo(classifier)
+        collect_bdt_responses(classifier)
+    elif sys.argv[1] == '--bdt':
+        figwidth = 4
+        plt.rcParams['figure.figsize'] = (figwidth,figwidth*3/4)
+        make_bdt_histo()
 
 if __name__ == '__main__':
     main()

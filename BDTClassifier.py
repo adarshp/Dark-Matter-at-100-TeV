@@ -23,10 +23,9 @@ class BDTClassifier(object):
             'ptb1',
             'ptb2',
             ]
-        bgs = [
-            'tt',
-            'tbW',
-            ]
+
+        bgs = ['tt', 'tbW', 'bbWW']
+            
         self.get_signal_train_test_data()
         [self.get_bg_train_test_data(bg) for bg in bgs]
 
@@ -45,8 +44,8 @@ class BDTClassifier(object):
         self.y_test = np.concatenate(tuple(y_test_signal+y_test_bgs))
 
         clf = GradientBoostingClassifier(
-                                n_estimators = 200,
-                                learning_rate = 0.05,
+                                n_estimators = 1000,
+                                learning_rate = 0.025,
                                 verbose = 3,
                                 )
         clf.fit(self.X_train, self.y_train)
@@ -58,7 +57,6 @@ class BDTClassifier(object):
         self.train_sets['Signal'], self.test_sets['Signal'] = train_test_split(df)
 
     def get_bg_train_test_data(self, bg_name):
-        df = pd.read_csv('BackgroundFeatureArrays/Output/{}/feature_array.txt'.format(bg_name), usecols = self.features)
-        self.train_sets[bg_name], self.test_sets[bg_name] = train_test_split(df)
-
-
+        df = pd.read_csv('BackgroundFeatureArrays/Output/{}/feature_array.txt'.format(bg_name),
+                         usecols = self.features)
+        self.train_sets[bg_name], self.test_sets[bg_name] = train_test_split(df,train_size = 0.3)
