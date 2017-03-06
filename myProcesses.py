@@ -4,7 +4,7 @@ import itertools as it
 import shutil as sh
 from collections import namedtuple
 import subprocess as sp
-sys.path.insert(0, '../clusterpheno')
+sys.path.insert(0, '/extra/adarsh/clusterpheno')
 from clusterpheno.Process import Process
 from clusterpheno.helpers import cd, modify_file, get_SAF_objects, Counter
 import numpy as np
@@ -30,15 +30,18 @@ class Signal(Process):
         self.index = '_'.join(["mH", str(int(self.mH)), "mB", str(int(self.mB))])
         Process.__init__(self,
             'H1H2', 'mssm-full', 'bbll_MET',
-        """import model mssm-full
+        """
         generate p p > n2 n3, (n2 > n1 z, z > l+ l-), (n3 > n1 h1, h1 > b b~)
         add process p p > n2 n3, (n3 > n1 z, z > l+ l-), (n2 > n1 h1, h1 > b b~)
         """, 100, self.index)
 
-    def get_xsection(self):
+    def get_pair_prod_xsection(self):
         with open('Cards/prospino_output_xsections/'+self.index+'_xsection.dat', 'r') as f:
             xs = float(f.readlines()[0].split()[-1:][0])
+        return xs
 
+    def get_xsection(self):
+        xs = self.get_pair_prod_xsection()
         xs = xs*1000.0 # Convert from attobarns to fb
         xs = xs*0.58 # Apply h->bb branching ratio
         xs = xs*0.067 # Apply Z->ll branching ratio
@@ -116,7 +119,7 @@ def mass_combinations(mH_min, mH_max, mH_step_size, mB_min, mB_max, mB_step_size
 
     tuples = list(it.product(higgsino_masses, bino_masses))
     namedtuples = [MassCombination(*_tuple) for _tuple in tuples]
-    return filter(lambda x: x.mH > x.mB, namedtuples)
+    return filter(lambda x: x.mH > x.mB + 126., namedtuples)
 
 signals = [Signal(bp) for bp in mass_combinations(500.0, 4000.0, 100.0,
                                                          25.0, 2500.0, 100.0)]
