@@ -1,38 +1,34 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-# Install python packages
-pip install -r requirements.txt
+# Defining colours for shell
+GREEN="\\033[1;32m"
+RED="\\033[1;31m"
+PINK="\\033[1;35m"
+BLUE="\\033[1;34m"
+YELLOW="\\033[1;33m"
+CYAN="\\033[1;36m"
+NORMAL="\\033[0;39m"
 
-# Make a Tools directory
-mkdir Tools
-cd Tools
+# Configuring MA5 environment variable
+export MA5_BASE=/extra/adarsh/Tools/madanalysis5
 
-# Install MadGraph5 v2.4.3
-wget https://launchpad.net/mg5amcnlo/2.0/2.4.x/+download/MG5_aMC_v2.4.3.tar.gz
-tar -zxvf MG5_aMC_v2.4.3.tar.gz
-rm MG5_aMC_v2.4.3.tar.gz; mv MG5_aMC_v2_4_3 mg5; cd mg5
-echo install pythia-pgs > install_pythia_delphes.cmd
-echo install Delphes  >> install_pythia_delphes.cmd
-./bin/mg5_aMC install_pythia_delphes.cmd; cd ../
+# Configuring PATH environment variable
+if [ $PATH ]; then
+export PATH=$PATH:
+else
+export PATH=
+fi
 
-## Install SUSY-HIT
-mkdir susyhit; cd susyhit
-wget https://www.itp.kit.edu/~maggie/SUSY-HIT/susyhit.tar.gz 
-tar -zxvf susyhit.tar.gz
-rm susyhit.tar.gz; make; cd ../
+# Configuring LD_LIBRARY_PATH environment variable
+if [ $LD_LIBRARY_PATH ]; then
+export LD_LIBRARY_PATH=$MA5_BASE/tools/SampleAnalyzer/Lib/:$MA5_BASE/tools/delphes:$LD_LIBRARY_PATH:/12kx/gsfs1/uaopt2012/root/lib:/cm/shared/uaapps/zlib/1.2.8/lib
+else
+export LD_LIBRARY_PATH=$MA5_BASE/tools/SampleAnalyzer/Lib/:$MA5_BASE/tools/delphes:/12kx/gsfs1/uaopt2012/root/lib:/cm/shared/uaapps/zlib/1.2.8/lib
+fi
 
-# Install Prospino
-git clone https://github.com/HEPcodes/Prospino2
-cd Prospino2
-sed -ie 's/rm -i/rm -f/g' Makefile
-sed -ie 's/ipart1_in = 5/ipart1_in = 2/g' prospino_main.f90 
-sed -ie 's/ipart2_in = 7/ipart2_in = 3/g' prospino_main.f90 
-sed -ie 's/energy_in = 14000/energy_in = 100000/g' prospino_main.f90 
-make; cd ../
-
-# Install MadAnalysis5
-wget https://launchpad.net/madanalysis5/trunk/v1.4/+download/MadAnalysis5_v1.4.tar.gz
-tar -zxvf MadAnalysis5_v1.4.tar.gz; rm MadAnalysis5_v1.4.tar.gz; cd madanalysis5
-sed -i 's/tmp ==2/tmp == 3/g' 'madanalysis5/tools/SampleAnalyzer/Process/Reader/LHCOReader.cpp'
-echo "install delphes" > install_delphes.cmd
-./bin/ma5 --script install_delphes.cmd
+# Checking that all environment variables are defined
+if [[ $MA5_BASE && $PATH && $LD_LIBRARY_PATH ]]; then
+echo -e $YELLOW"--------------------------------------------------------"
+echo -e "    Your environment is properly configured for MA5     "
+echo -e "--------------------------------------------------------"$NORMAL
+fi
