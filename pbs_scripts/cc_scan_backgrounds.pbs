@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -M adarsh@email.arizona.edu
+#PBS -W group_list=shufang
+#PBS -N cc_scan_bgs
+#PBS -q windfall
+#PBS -l select=1:ncpus=3:mem=18gb:pcmem=6gb
+#PBS -l place=free:shared
+#PBS -l cput=10:0:0
+#PBS -l walltime=4:0:0
+date
+cd /xdisk/adarsh/Dark-Matter-at-100-TeV/
+./cut_n_count.py --analyze_backgrounds
+date
+exit 0
