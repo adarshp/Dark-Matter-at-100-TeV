@@ -44,7 +44,7 @@ class BDTClassifier(object):
         self.y_test = np.concatenate(tuple(y_test_signal+y_test_bgs))
 
         clf = GradientBoostingClassifier(
-                                n_estimators = 1000,
+                                n_estimators = 300,
                                 learning_rate = 0.025,
                                 verbose = 3,
                                 )
@@ -52,11 +52,15 @@ class BDTClassifier(object):
         self.clf = clf
 
     def get_signal_train_test_data(self):
-        df = pd.read_csv(self.signal.directory+'/MakeFeatureArray/Output/feature_array.txt',
+        df = pd.read_csv('MakeFeatureArrays/Output/'+self.signal.index+'/feature_array.txt',
                         usecols = self.features)
+        # df = pd.read_csv(self.signal.directory+'/MakeFeatureArray/Output/feature_array.txt',
+                        # usecols = self.features)
         self.train_sets['Signal'], self.test_sets['Signal'] = train_test_split(df)
 
     def get_bg_train_test_data(self, bg_name):
-        df = pd.read_csv('BackgroundFeatureArrays/Output/{}/feature_array.txt'.format(bg_name),
+        df = pd.read_csv('MakeFeatureArrays/Output/'+bg_name+'/feature_array.txt',
                          usecols = self.features)
+        # df = pd.read_csv('BackgroundFeatureArrays/Output/{}/feature_array.txt'.format(bg_name),
+                         # usecols = self.features)
         self.train_sets[bg_name], self.test_sets[bg_name] = train_test_split(df,train_size = 0.3)

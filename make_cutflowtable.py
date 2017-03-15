@@ -19,6 +19,7 @@ from BDTClassifier import BDTClassifier
 from sklearn.model_selection import cross_val_score
 
 def get_data(mySignal, process_name):
+    """ Get event flow from SAF output"""
     with cd('CutAndCount/Output/'+process_name+'/Analysis_0/Cutflows'):
         convert_SAF_to_XML('Signal.saf')
         objects = untangle.parse('Signal.xml').root
@@ -31,6 +32,7 @@ def get_data(mySignal, process_name):
     return df
 
 def get_xsection(filename):
+    """ Get matched cross section from a .lhco.gz file"""
     with gzip.open(filename, 'r') as f:
         lines = f.readlines()
         myline = [line for line in lines if 'Matched Integrated weight' in line][0]
@@ -38,14 +40,15 @@ def get_xsection(filename):
         return float(myline.split()[-1])
 
 def get_bg_xsection(bg_name):
+    """ Collect cross sections from multiple .lhco.gz files and average them."""
     filenames = glob.glob('/extra/adarsh/Events/Backgrounds/'+bg_name+'/bbllvv/100_TeV/*/Events/*/*.lhco.gz')
-    xsections = map(get_xsection, tqdm(filenames, desc = 'getting xsections for '+bg_name, dynamic_ncols=True))
-    mean_xsection = sum(xsections)/len(xsections)
+    mean_xsection = np.mean(map(get_xsection, tqdm(filenames, desc = 'getting xsections for '+bg_name, dynamic_ncols=True)))
     with open('bg_xsections.txt', 'a') as f:
         f.write(bg_name+','+str(mean_xsection)+'\n')
 
 def get_original_bg_events(bg_name):
-    filepath = 'BackgroundFeatureArrays/Output/{}/Analysis/Cutflows/Signal'.format(bg_name)
+    # filepath = 'BackgroundFeatureArrays/Output/{}/Analysis/Cutflows/Signal'.format(bg_name)
+    filepath = 'MakeFeatureArrays/Output/{}/Analysis_0/Cutflows/Signal'.format(bg_name)
     return Counter((get_SAF_objects(filepath)).InitialCounter).nevents
 
 def make_bdt_cut_flow_table(BDTClassifier, bdt_cut):
@@ -63,7 +66,8 @@ def make_bdt_cut_flow_table(BDTClassifier, bdt_cut):
         df[process_name] = [len(decisions[process_name]),
                             len(filter(lambda x: x > bdt_cut,decisions[process_name]))]
 
-    signal_filepath = BDTClassifier.signal.directory+'/MakeFeatureArray/Output/Signal/Analysis/Cutflows/Signal'
+    signal_filepath = 'MakeFeatureArrays/Output/'+BDTClassifier.signal.index+'/Analysis_0/Cutflows/Signal'
+    # signal_filepath = BDTClassifier.signal.directory+'/MakeFeatureArray/Output/Signal/Analysis/Cutflows/Signal'
     original_signal_events = Counter((get_SAF_objects(signal_filepath)).InitialCounter).nevents
 
     def fraction_after_preselection(process_name):
@@ -135,10 +139,11 @@ def run_bdt_test(signal):
 
 def write_nevents_to_file(signal):
     """ Scan over a range of bdt cuts and write the results to a file. """
-    sp.call('rm -rf intermediate_results/bdt_scan_progress/*', shell = True)
     try:
         classifier = BDTClassifier(signal)
-        with open(signal.directory+'/MakeFeatureArray/nevents.csv', 'w') as f:
+        # with open(signal.directory+'/MakeFeatureArray/nevents.csv', 'w') as f:
+        with open('MakeFeatureArrays/Output/'+signal.index+'/nevents.csv', 'w') as f:
+            print('ok so far')
             f.write('bdt_cut,nS,nB,significance\n')
             for bdt_cut in bdt_cut_range:
                 table = make_bdt_cut_flow_table(classifier, bdt_cut)
@@ -148,9 +153,6 @@ def write_nevents_to_file(signal):
                 f.write('{},{},{},{}\n'.format(str(bdt_cut),
                         str(int(nS)), str(int(nB)), str(sig)))
                                               
-        with open('intermediate_results/bdt_scan_progress/'+signal.index+'_done','w') as f:
-            f.write('done')
-
     except:
         pass
 
@@ -180,7 +182,6 @@ def main():
 OPTIONS
 --bdt_rep: Create a representative bdt cut flow table for mH = 1 TeV, mB = 25 GeV
 --bdt mH mB: Make a BDT cut flow table for higgsino mass mH and bino mass mB
---cutandcount: 
 --cluster: Submit a number of jobs to the cluster, one for each mass combination
 --interactive: Run BDT analyses on all mass combinations (but using one core)
 --parallel: Run BDT analyses on all mass combinations (using 28 cpus on one Ocelote node)
@@ -190,13 +191,11 @@ OPTIONS
         # print(scores.mean(), scores.std()*2)
         mySignal = filter(lambda x: x.mH == 1000 and x.mB == 25,signals)[0]
         classifier = BDTClassifier(mySignal)
-        print make_bdt_cut_flow_table(classifier, 6.6)
+        print make_bdt_cut_flow_table(classifier, 5.1)
     elif sys.argv[1] == '--bdt':
         mH = sys.argv[2]; mB = sys.argv[3]
         mySignal = filter(lambda x: x.mH == int(mH) and x.mB == int(mB),signals)[0]
         write_nevents_to_file(mySignal)
-    elif sys.argv[1] == '--cutandcount':
-        make_cut_and_count_cut_flow_tables()
     elif sys.argv[1] == '--cluster':
         do_parallel(write_submit_script, signals)
     elif sys.argv[1] == '--interactive':

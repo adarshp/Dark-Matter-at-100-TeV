@@ -40,13 +40,30 @@ class Signal(Process):
             xs = float(f.readlines()[0].split()[-1:][0])
         return xs
 
+    def get_branching_ratios(self):
+        with open(self.directory+'/Cards/param_card.dat','r') as f:
+           for line in f.readlines():
+                if 'BR(~chi_20 -> ~chi_10   Z )' in line:
+                    self.br2_Z = float(line.split()[0])
+                if 'BR(~chi_20 -> ~chi_10   h )' in line:
+                    self.br2_h = float(line.split()[0])
+                if 'BR(~chi_30 -> ~chi_10   Z )' in line:
+                    self.br3_Z = float(line.split()[0])
+                if 'BR(~chi_30 -> ~chi_10   h )' in line:
+                    self.br3_h = float(line.split()[0])
+                if 'BR(h -> b       bb     )' in line:
+                    self.brh_bb = float(line.split()[0])
+        
     def get_xsection(self):
-        xs = self.get_pair_prod_xsection()
+        with open('Cards/prospino_output_xsections/'+self.index+'_xsection.dat', 'r') as f:
+            xs = float(f.readlines()[0].split()[-1:][0])
+        self.get_branching_ratios()
         xs = xs*1000.0 # Convert from attobarns to fb
-        xs = xs*0.58 # Apply h->bb branching ratio
+        # Total branching fraction to Zh final state (from SUSY-HIT)
+        xs = xs*(self.br2_Z*self.br3_h + self.br3_Z*self.br2_h) 
+        xs = xs*self.brh_bb # Apply h->bb branching ratio
         xs = xs*0.067 # Apply Z->ll branching ratio
-        xs = xs*0.5 # Apply Goldstone equivalence theorem
-
+        # xs = xs*0.5 # Apply Goldstone equivalence theorem
         return xs
 
     def run_susyhit(self, susyhit_path = 'Tools/susyhit'):
