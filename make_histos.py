@@ -19,14 +19,18 @@ import pandas as pd
 import untangle
 from BDTClassifier import BDTClassifier
 import matplotlib.patches as mpatches
+import shutil as sh
 
-processes = ['Signal', 'tt', 'tbW',
-            'bbWW',
-            ]
-colors = {'Signal': 'DarkBlue', 
+processes = ['mH_1000_mB_25', 'tt', 'tbW']
+labels = {
+'mH_1000_mB_25':'Signal',
+'tt':'tt',
+'tbW':'tbW',
+}
+colors = {
+          'mH_1000_mB_25': 'DarkBlue', 
           'tt': 'r',
           'tbW': 'green',
-          'bbWW':'orange',
           }
 ylabels = {'m_R': r'$\frac{1}{\sigma}\frac{d\sigma}{dM_R}$',
            'm_T_R': r'$\frac{1}{\sigma}\frac{d\sigma}{dM_T^R}$'}
@@ -35,9 +39,8 @@ xlabels = {'m_R': r'$M_R$ $\mathrm{(GeV)}$',
 patches = {}
 for process in processes:
     patches[process] = mpatches.Rectangle((1,1),0.5,0.5, color = colors[process],
-                                          label = r'${}$'.format(process), alpha = 0.4)
-def make_histo(histo_name):
-
+                                          label = r'${}$'.format(labels[process]), alpha = 0.4)
+def make_histo(histo_name,signal):
     for process_name in processes:
         with cd('CutAndCount/Output/'+process_name+'/Analysis_0/Histograms/'):
             convert_SAF_to_XML('histos.saf')
@@ -53,11 +56,11 @@ def make_histo(histo_name):
             plt.style.use('ggplot')
             plt.bar(index, bin_contents, width = (xmax - xmin)/nbins, alpha = 0.4,
                     color = colors[process_name],
-                    label = r'${}$'.format(process_name))
+                    label = r'${}$'.format(labels[process_name]))
             plt.xlim(xmin, xmax)
 
-def make_mTR_histo():
-    make_histo('mTR')
+def make_mTR_histo(signal):
+    make_histo('mTR',signal)
     plt.ylabel(ylabels['m_T_R'], fontsize = 11)
     plt.xlabel(xlabels['m_T_R'], fontsize = 11)
     plt.ylim(0, 0.3)
@@ -71,8 +74,8 @@ def make_mTR_histo():
     plt.savefig('images/mTR.pdf', dpi = 300)
     plt.close()
 
-def make_mR_histo():
-    make_histo('m_R')
+def make_mR_histo(signal):
+    make_histo('m_R',signal)
     plt.ylabel(ylabels['m_R'])
     plt.xlabel(xlabels['m_R'])
     plt.legend(handles = [patches[process] for process in processes], fontsize = 10)
@@ -93,6 +96,8 @@ def collect_bdt_responses(BDTClassifier):
 def make_bdt_histo():
     matplotlib.style.use('ggplot')
     responses = {}
+    processes = processes+ ['bbWW']
+    colors['bbWW'] = 'orange' 
     for process in processes:
         with open('intermediate_results/bdt_responses/'+process+'.txt', 'r') as f:
             responses[process] = map(lambda x: float(x), f.readlines())
@@ -120,10 +125,11 @@ def make_bdt_histo():
     plt.close()
 
 def main():
+    mySignal = filter(lambda x: x.mH == 1000 and x.mB == 25,signals)[0]
     if sys.argv[1] == '--mR':
-        make_mR_histo()
+        make_mR_histo(mySignal)
     elif sys.argv[1] == '--mTR':
-        make_mTR_histo()
+        make_mTR_histo(mySignal)
     elif sys.argv[1] == '--collect_bdt_rep':
         mySignal = filter(lambda x: x.mH == 1000 and x.mB == 25,signals)[0]
         classifier = BDTClassifier(mySignal)

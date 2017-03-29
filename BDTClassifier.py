@@ -16,7 +16,7 @@ class BDTClassifier(object):
             'mR',
             'mTR',
             'MET',
-            'mllbb',
+            # 'mllbb',
             'THT',
             'ptl1',
             'ptl2',
@@ -44,9 +44,9 @@ class BDTClassifier(object):
         self.y_test = np.concatenate(tuple(y_test_signal+y_test_bgs))
 
         clf = GradientBoostingClassifier(
-                                n_estimators = 300,
+                                n_estimators = 1000,
                                 learning_rate = 0.025,
-                                verbose = 3,
+                                verbose = 0,
                                 )
         clf.fit(self.X_train, self.y_train)
         self.clf = clf

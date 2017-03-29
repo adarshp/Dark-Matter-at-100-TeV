@@ -109,7 +109,7 @@ def make_bdt_cut_flow_table(BDTClassifier, bdt_cut):
         df_paper = df[['Signal_xs','tt_xs','tbW_xs','bbWW_xs','bg_xs_total','$S/B$','Significance']]
         S = BDTClassifier.signal.get_xsection()
         B = sum([tt_xs,tbW_xs,bbWW_xs])
-        df_paper.columns = ['$\sigma_{signal}$','$\signal_{tt}$','$\sigma_{tbW}$','$\sigma_{bbWW}$','$\sigma_{tot,BG}$','$S/B$','$S/\sqrt{B}$']
+        df_paper.columns = ['$\sigma_{signal}$','$\sigma_{tt}$','$\sigma_{tbW}$','$\sigma_{bbWW}$','$\sigma_{tot,BG}$','$S/B$','$S/\sqrt{B}$']
         df_paper.loc['Original'] = [S,tt_xs,tbW_xs,bbWW_xs,B,S/B,S*np.sqrt(luminosity/B)]
         df_paper.reindex(['Original','After preselection','After BDT cut'])
         def myFormatter(x):

@@ -46,7 +46,7 @@ date
 cd /xdisk/adarsh/Dark-Matter-at-100-TeV/Preselection/Build
 ./analyze.sh {proc_name}
 date
-'''.format(proc_name = signal.index))
+'''.format(proc_name = str(signal.mH)+'_'+str(signal.mB)))
             sp.call(['qsub',scriptName],stdout=open(os.devnull,'w'))
             os.remove(scriptName)
 
@@ -54,6 +54,11 @@ def make_skimmed_input_list(signal):
     """ Make input lists for skimmed LHCO files. """
     with open('CutAndCount/Input/Skimmed/'+signal.index, 'w') as f:
         f.write('../../Preselection/Output/Skimfiles/'+signal.index+'.lhco')
+
+def make_skimmed_bg_input_list(bg):
+    """ Make input lists for skimmed LHCO background files. """
+    with open('CutAndCount/Input/Skimmed/'+bg, 'w') as f:
+        f.write('../../Preselection/Output/Skimfiles/'+bg+'.lhco')
 
 def set_razor_cuts(mR,mTR):
     """ Set razor cuts and compile. """
@@ -98,15 +103,15 @@ def analyze_bg_skimmed(bg_name, razor_combo):
 
 def analyze_signals():
     razor_combos = razor_combinations()
-    for combo in tqdm(razor_combos[0:2]):
+    for combo in tqdm(razor_combos):
         set_razor_cuts(combo[0], combo[1])
-        do_parallel(lambda x: analyze_signal_skimmed(x,combo), signals[0:2], 2)
+        do_parallel(lambda x: analyze_signal_skimmed(x,combo), signals, 28)
 
-def analyze_backgrounds():
+def analyze_backgrounds(bgs):
     razor_combos = razor_combinations()
     for combo in tqdm(razor_combos):
         set_razor_cuts(combo[0], combo[1])
-        do_parallel(lambda x: analyze_bg_skimmed(x,combo), ['tbW','bbWW'], 2)
+        do_parallel(lambda x: analyze_bg_skimmed(x,combo), bgs, 3)
 
 def preselect_backgrounds():
     """ Run preselection for backgrounds (on login node) """
@@ -123,7 +128,9 @@ def main():
         map(make_skimmed_input_list, tqdm(signals, ncols=80))
         analyze_signals()
     if sys.argv[1] == '--analyze_backgrounds':
-        analyze_backgrounds()
+        bgs = ['tt', 'tbW', 'bbWW']
+        map(make_skimmed_bg_input_list, tqdm(bgs, ncols=80))
+        analyze_backgrounds(bgs)
 
 if __name__ == '__main__':
     main()

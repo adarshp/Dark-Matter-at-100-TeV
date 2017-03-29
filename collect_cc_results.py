@@ -84,7 +84,7 @@ def substitute_signal_razor_cutflow_rows(signal, razor_combo):
     df_new = pd.concat([df_original, df_skimmed[-2:]],axis=0,join='outer')
     return df_new
 
-def make_cut_and_count_cut_flow_tables(mySignal, razor_combo):
+def make_cut_and_count_cut_flow_tables(mySignal, razor_combo, to_print=False):
     pd.set_option('precision',5)
     signal_df = substitute_signal_razor_cutflow_rows(mySignal, razor_combo) 
     bg_dfs = [substitute_bg_razor_cutflow_rows(bg_name, razor_combo) for bg_name in ['tt','tbW','bbWW']]
@@ -136,7 +136,7 @@ def make_cut_and_count_cut_flow_tables(mySignal, razor_combo):
                      '$\sigma_{tt}$',
                      '$\sigma_{tbW}$',
                      '$\sigma_{bbWW}$',
-                     '$\sigma_{tot, BG}',
+                     '$\sigma_{tot, BG}$',
                      '$S/B$',
                      '$S/\sqrt{B}$']
 
@@ -159,22 +159,25 @@ def make_cut_and_count_cut_flow_tables(mySignal, razor_combo):
         if x < 10: return '%.1f' % x
         else: return "{:,.0f}".format(x)
 
-    with open('tables/cutflowtable.tex', 'w') as f:
-        xs_df.to_latex(f,escape=False,float_format=myFormatter)
-    with open('tables/3attobarns_events_table.tex', 'w') as f:
-        nevents_df.to_latex(f, escape=False)
+    if to_print == True:
+        with open('tables/cutflowtable.tex', 'w') as f:
+            xs_df.to_latex(f,escape=False,float_format=myFormatter)
+        with open('tables/3attobarns_events_table.tex', 'w') as f:
+            nevents_df.to_latex(f, escape=False)
+
     return xs_df
 
 def get_significance(signal, razor_combo):
-    try:
-        df = make_cut_and_count_cut_flow_tables(signal, razor_combo)
+    df = make_cut_and_count_cut_flow_tables(signal, razor_combo)
+    nevents_after_cuts = df['$\sigma_{signal}$']['$m_{T}^{R} > 400$']*3000.
+    if nevents_after_cuts < 5:
+        return 0
+    else:
         sig = df['$S/\sqrt{B}$'][-1]
         return sig
-    except:
-        pass
 
 def get_max_significance(signal):
-    max_sig = max([get_significance(signal, razor_combo) for razor_combo in razor_combinations()])
+    max_sig = max([get_significance(signal, razor_combo) for razor_combo in tqdm(razor_combinations())])
     with open('intermediate_results/cc_scan_results/'+signal.index,'w') as f:
         f.write(','.join([str(signal.mH), str(signal.mB), str(max_sig)]))
 
@@ -193,4 +196,4 @@ if __name__ == '__main__':
         collect_max_sigs()
     elif sys.argv[1] == '--cc_rep':
         mySignal = filter(lambda x: x.mH == 1000 and x.mB == 25, signals)[0]
-        make_cut_and_count_cut_flow_tables(mySignal,(800.0, 400.0))
+        make_cut_and_count_cut_flow_tables(mySignal,(800.0, 400.0),True)

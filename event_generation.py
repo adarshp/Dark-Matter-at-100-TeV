@@ -16,7 +16,8 @@ def copy_cards(signal):
                            'Cards/delphes_cards/FCChh.tcl')
         # sh.copy('Cards/delphes_cards/momentumResolutionVsP.tcl', signal.directory+'/Cards/')
         # sh.copy('Cards/delphes_cards/muonMomentumResolutionVsP.tcl', signal.directory+'/Cards/')
-        sh.copy('Cards/me5_configuration.txt', signal.directory+'/Cards/')
+        # sh.copy('Cards/me5_configuration.txt', signal.directory+'/Cards/')
+        sh.copy('Cards/param_cards/'+signal.index+'_param_card.dat', signal.directory+'/Cards/param_card.dat')
 
 def write_pbs_scripts(processes, parser, nruns):
     for process in tqdm(processes, dynamic_ncols = True,
@@ -29,20 +30,19 @@ def write_pbs_scripts(processes, parser, nruns):
                                   email = parser.get('Cluster', 'email'),
                                   group_list = parser.get('Cluster', 'group_list'),
                                   nruns = str(nruns),
-                                  cput = str(28*nruns),
-                                  walltime = str(1*nruns),
+                                  cput = str(30*nruns),
+                                  walltime = str(30*nruns),
                                   cwd = os.getcwd(),
                                   mg5_process_dir = process.directory))
 
 def main():
-    # mg5_path = '/extra/adarsh/Tools/mg5/'
-    # do_parallel(lambda x: x.create_directory(mg5_path),signals,28)
+    mg5_path = '/extra/adarsh/Tools/mg5/'
+    # do_parallel(lambda x: x.create_directory(mg5_path),signals,12)
     # do_parallel(copy_cards,signals, 2)
-    # parser = SafeConfigParser()
-    # parser.read('config.ini')
-    # write_pbs_scripts(signals, parser, 1)
-    # do_parallel(lambda x: x.write_pbs_script(parser, 1), signals, 28)
-    map(lambda x: x.generate_events(), tqdm(signals[0:2], desc = "submitting PBS jobs"))
+    parser = SafeConfigParser()
+    parser.read('config.ini')
+    write_pbs_scripts(signals, parser, 20)
+    map(lambda x: x.generate_events(), tqdm(signals, desc = "submitting PBS jobs"))
 
 if __name__ == '__main__':
     main()

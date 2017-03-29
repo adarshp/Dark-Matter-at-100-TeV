@@ -20,7 +20,7 @@ figwidth = 6.12
 plt.rcParams['figure.figsize'] = (figwidth,figwidth*3/4)
 
 def get_max_bdt_significance(signal):
-    with cd(signal.directory+'/MakeFeatureArray/'):
+    with cd('MakeFeatureArrays/Output/'+signal.index+'/'):
         df = pd.read_csv('nevents.csv')
         return max(df['significance'])
 
@@ -50,10 +50,10 @@ def make_line():
     plt.plot(x,x,color = 'gray', linestyle = 'dashed')
 
 def set_axis_labels():
-    plt.xlim(525,1600)
-    plt.ylim(0,1200)
-    plt.text(550, 1075, r"$\mathcal{L} = 3000$ $\mathrm{fb}^{-1}$", fontsize = 20)
-    plt.text(700, 830, r"$M_1 = |\mu|$", fontsize = 11, rotation = 32)
+    plt.xlim(525,2000)
+    plt.ylim(0,1500)
+    plt.text(600, 1300, r"$\mathcal{L} = 3000$ $\mathrm{fb}^{-1}$", fontsize = 20)
+    plt.text(700, 870, r"$M_1 = |\mu|$", fontsize = 11, rotation = 32)
     plt.ylabel(r'$M_1$ $\mathrm{(GeV)}$', fontsize = 11)
     plt.xlabel(r'$|\mu|$ $\mathrm{(GeV)}$', fontsize = 11)
     axes = plt.axes()
@@ -90,15 +90,18 @@ def make_combined_contour_plot():
 
     plt.style.use('ggplot')
 
-    res = 100
+    res = 15
     fmt = {}
     X, Y, Z = get_XYZ_grid(bdt_df,res)
     colors = ['DarkBlue','Maroon']
     bdt_CS = plt.contour(X,Y,Z,levels = [1.96,5], linestyles = 'dashed', colors = colors)
+
+    # BDT contour labels
     fmt[bdt_CS.levels[0]] = r'$1.96\sigma$ $(BDT)$'
     fmt[bdt_CS.levels[1]] = r'$5\sigma$ $(BDT)$'
-    manual_locations = [(1100,400),(1300,1000)]
+    manual_locations = [(1200,800),(1500,1200)]
     plt.clabel(bdt_CS, inline=1, fontsize=11, fmt=fmt,manual=manual_locations)
+
     X, Y, Z = get_XYZ_grid(cc_df,res)
     cc_CS = plt.contour(X,Y,Z,levels = [1.96,5], linestyles = 'solid', colors = colors)
     fmt[cc_CS.levels[0]] = '$1.96\sigma$'
