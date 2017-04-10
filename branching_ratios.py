@@ -35,7 +35,7 @@ def write_all_branching_ratios():
                                         br_chi3_Zchi1,
                                         br_chi3_hchi1))
 
-def make_plot():
+def make_contour_plot():
     df = pd.read_csv(filename)
     res = 20
     resX = res; resY = res
@@ -74,6 +74,19 @@ def make_plot():
     plt.clabel(cs3,inline=1, fmt=fmt)
 
     plt.savefig('images/br_contours.pdf')
+
+def make_plot():
+    """ Plot branching ratio of a individual neutralinos"""
+    df = pd.read_csv(filename)
+    df = df[df['M1'] == 25]
+    x = df['mu']
+    y1 = df['br_chi2_Zchi1']
+    y2 = df['br_chi2_hchi1']
+    y3 = df['br_chi3_Zchi1']
+    y4 = df['br_chi3_hchi1']
+    plt.style.use('fivethirtyeight')
+    plt.plot(x,y1, x, y2,x,y3,x,y4)
+    plt.savefig('images/br_plot.pdf')
 
 if __name__ == '__main__':
     make_plot()
