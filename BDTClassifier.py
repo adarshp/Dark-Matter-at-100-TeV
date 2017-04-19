@@ -46,7 +46,7 @@ class BDTClassifier(object):
         clf = GradientBoostingClassifier(
                                 n_estimators = 1000,
                                 learning_rate = 0.025,
-                                verbose = 0,
+                                verbose = 3,
                                 )
         clf.fit(self.X_train, self.y_train)
         self.clf = clf

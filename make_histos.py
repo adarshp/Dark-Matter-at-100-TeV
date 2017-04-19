@@ -21,13 +21,14 @@ from BDTClassifier import BDTClassifier
 import matplotlib.patches as mpatches
 import shutil as sh
 
-processes = ['mH_1000_mB_25', 'tt', 'tbW']
+processes = ['Signal', 'mH_1000_mB_25', 'tt', 'tbW']
 labels = {
 'mH_1000_mB_25':'Signal',
 'tt':'tt',
 'tbW':'tbW',
 }
 colors = {
+          'Signal': 'DarkBlue', 
           'mH_1000_mB_25': 'DarkBlue', 
           'tt': 'r',
           'tbW': 'green',
@@ -88,16 +89,19 @@ def make_mR_histo(signal):
     plt.close()
 
 def collect_bdt_responses(BDTClassifier):
-    for process in processes:
+    for process in ['Signal','tt','tbW','bbWW']:
         with open('intermediate_results/bdt_responses/'+process+'.txt', 'w') as f:
             responses = BDTClassifier.clf.decision_function(BDTClassifier.test_sets[process])
             f.write('\n'.join(map(lambda x: str(x), responses)))
 
 def make_bdt_histo():
-    matplotlib.style.use('ggplot')
+    matplotlib.style.use('fivethirtyeight')
     responses = {}
-    processes = processes+ ['bbWW']
+    processes = ['Signal','tt','tbW','bbWW']
     colors['bbWW'] = 'orange' 
+    labels['bbWW'] = 'bbWW'
+    patches['bbWW'] = mpatches.Rectangle((1,1),0.5,0.5, color = colors['bbWW'],
+                            label = r'${}$'.format(labels['bbWW']), alpha = 0.4)
     for process in processes:
         with open('intermediate_results/bdt_responses/'+process+'.txt', 'r') as f:
             responses[process] = map(lambda x: float(x), f.readlines())
@@ -105,13 +109,13 @@ def make_bdt_histo():
     def weights(array):
         return np.ones_like(array)/float(len(array))
     plt.hist(responses['Signal'], weights = weights(responses['Signal']), bins = 30,
-             color = 'DarkBlue', alpha = 0.4, label = r'$Signal$')
+             color = 'DarkBlue', alpha = 0.4, label = r'\emph{Signal}')
     plt.hist(responses['tt'], weights = weights(responses['tt']), bins = 30,
-             color = 'Crimson', alpha = 0.4, label = r'$tt$')
+             color = 'Crimson', alpha = 0.4, label = r'$t\overline{t}$')
     plt.hist(responses['tbW'], weights = weights(responses['tbW']), bins = 30,
-             color = 'Green', alpha = 0.4, label = r'$tbW$')
+             color = 'Green', alpha = 0.4, label = r'\emph{tbW}')
     plt.hist(responses['bbWW'], weights = weights(responses['bbWW']), bins = 30,
-             color = 'orange', alpha = 0.4, label = r'$bbWW$')
+             color = 'orange', alpha = 0.4, label = r'\emph{bbWW}')
     plt.xlim(-10, 11)
     plt.ylim(0,0.3)
     plt.ylabel(r'$\frac{1}{\sigma}\frac{d\sigma}{dx}$',fontsize = 11)
