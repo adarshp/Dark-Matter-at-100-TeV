@@ -73,7 +73,7 @@ def make_line():
 def set_axis_labels():
     plt.xlim(525,2000)
     plt.ylim(0,1500)
-    plt.text(610, 1400, r"$\mathcal{L}$ = 3000 fb$^{-1}$", fontsize = 12)
+    plt.text(610, 1400, r"$\mathcal{L}=$ 3000 fb$^{-1}$", fontsize = 12)
     plt.text(700, 1050, r"$M_1 = |\mu|$", fontsize=10,rotation = 45)
     plt.ylabel(r'$M_1$ $\mathrm{(GeV)}$',fontsize=10)
     plt.xlabel(r'$|\mu|$ $\mathrm{(GeV)}$',fontsize=10)

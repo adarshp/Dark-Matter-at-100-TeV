@@ -21,7 +21,7 @@ from BDTClassifier import BDTClassifier
 import matplotlib.patches as mpatches
 import shutil as sh
 
-processes = ['Signal', 'mH_1000_mB_25', 'tt', 'tbW']
+processes = ['mH_1000_mB_25', 'tt', 'tbW']
 labels = {
 'mH_1000_mB_25':'Signal',
 'tt':'tt',
