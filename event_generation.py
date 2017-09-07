@@ -35,14 +35,22 @@ def write_pbs_scripts(processes, parser, nruns):
                                   cwd = os.getcwd(),
                                   mg5_process_dir = process.directory))
 
-def main():
-    mg5_path = '/extra/adarsh/Tools/mg5/'
-    # do_parallel(lambda x: x.create_directory(mg5_path),signals,12)
-    # do_parallel(copy_cards,signals, 2)
-    parser = SafeConfigParser()
-    parser.read('config.ini')
-    write_pbs_scripts(signals, parser, 20)
-    map(lambda x: x.generate_events(), tqdm(signals, desc = "submitting PBS jobs"))
+def write_madevent_scripts(processes):
+    for process in tqdm(processes, dynamic_ncols=True, 
+                        desc = 'writing madevent scripts'):
+        with open('Events/Signals/higgsino_NLSP_bino_LSP/'+'launch_'+\
+                  process.index+'.txt', 'w') as f:
+            f.write('generate_events ' + process.index+'\n')
+            f.write('../../../Cards/param_cards/'+process.index+'_param_card.dat\n')
+
 
 if __name__ == '__main__':
-    main()
+    mg5_path = '/extra/adarsh/Tools/mg5/'
+    write_madevent_scripts(signals)
+    # signals[0].create_directory(mg5_path)
+    # do_parallel(lambda x: x.create_directory(mg5_path),signals,12)
+    # do_parallel(copy_cards,signals, 2)
+    # parser = SafeConfigParser()
+    # parser.read('config.ini')
+    # write_pbs_scripts(signals, parser, 20)
+    # map(lambda x: x.generate_events(), tqdm(signals, desc = "submitting PBS jobs"))

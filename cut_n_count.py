@@ -43,10 +43,11 @@ def preselect_signals():
 #PBS -l cput=5:0:0
 #PBS -l walltime=5:0:0
 date
-cd /xdisk/adarsh/Dark-Matter-at-100-TeV/Preselection/Build
+cd /rsgrps/shufang/Dark-Matter-at-100-TeV/Preselection/Build
+source setup.sh
 ./analyze.sh {proc_name}
 date
-'''.format(proc_name = str(signal.mH)+'_'+str(signal.mB)))
+'''.format(proc_name = 'mH_'+str(int(signal.mH))+'_mB_'+str(int(signal.mB))))
             sp.call(['qsub',scriptName],stdout=open(os.devnull,'w'))
             os.remove(scriptName)
 
@@ -115,7 +116,7 @@ def analyze_backgrounds(bgs):
 
 def preselect_backgrounds():
     """ Run preselection for backgrounds (on login node) """
-    bgs = ['tt','tbW','bbWW']
+    bgs = ['tt_fully_leptonic','tbW_bbllvv','bbWW_bbllvv']
     with cd('Preselection/Build'):
         do_parallel(lambda x: sp.call(['./analyze_bgs.sh', x]), bgs, 3)
         

@@ -27,7 +27,7 @@ class Signal(Process):
         self.bp = benchmark_point
         self.mH = self.bp.mH
         self.mB = self.bp.mB
-        self.index = '_'.join(["mH", str(int(self.mH)), "mB", str(int(self.mB))])
+        self.index = "_".join(["mH", str(int(self.mH)), "mB", str(int(self.mB))])
         Process.__init__(self,
             'H1H2', 'mssm-full', 'bbll_MET',
         """
@@ -138,8 +138,8 @@ def mass_combinations(mH_min, mH_max, mH_step_size, mB_min, mB_max, mB_step_size
     namedtuples = [MassCombination(*_tuple) for _tuple in tuples]
     return filter(lambda x: x.mH > x.mB + 126., namedtuples)
 
-signals = [Signal(bp) for bp in mass_combinations(500.0, 4000.0, 100.0,
-                                                         25.0, 2500.0, 100.0)]
+signals = [Signal(bp) for bp in mass_combinations(500.0, 2000.0, 100.0,
+                                                  25.0, 1500.0, 100.0)]
 
 tt_collection = [Process(
     'tt','sm','bbllvv',
