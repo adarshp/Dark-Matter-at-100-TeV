@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -N tt_full
+#PBS -M adarsh@email.arizona.edu
+#PBS -W group_list=shufang
+#PBS -q standard
+#PBS -l select=1:ncpus=28:mem=168gb:pcmem=6gb
+#PBS -l cput=672:0:0
+#PBS -l walltime=24:0:0
+
+cd /extra/adarsh/tt_fully_leptonic
+
+dm='/home/u13/adarsh/Dark-Matter-at-100-TeV'
+target_dir='/rsgrps/shufang/Events/tt_fully_leptonic_mll_approx_mZ/'
+mg5_dir='/home/u13/adarsh/MG5_aMC_v2_6_0/'
+
+nruns=72
+for i in {1..$nruns}
+do
+  rm RunWeb
+  ./bin/madevent $dm/bg_me5_script.txt
+  for entry in Events/run_*/tag_*_delphes_events.root
+  do
+    $mg5_dir/Delphes/root2lhco $entry output.lhco
+    gzip output.lhco
+    mv output.lhco.gz $target_dir/sample_`ls $target_dir | wc -l`.lhco.gz
+  done
+  rm -rf Events/*
+done
+echo "DONE"
+exit 0
