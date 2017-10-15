@@ -1,3 +1,0 @@
-import model sm
-generate p p > t t~, (t > w+ b, w+ > l+ vl), (t~ > w- b~, w- > l- vl~)
-output Events/Backgrounds/tt/bbllvv/100TeV/0

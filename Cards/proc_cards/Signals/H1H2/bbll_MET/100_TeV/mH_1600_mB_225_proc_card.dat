@@ -1,6 +1,0 @@
-import model mssm-full
-import model mssm-full
-        generate p p > n2 n3, (n2 > n1 z, z > l+ l-), (n3 > n1 h1, h1 > b b~)
-        add process p p > n2 n3, (n3 > n1 z, z > l+ l-), (n2 > n1 h1, h1 > b b~)
-        
-output Events/Signals/H1H2/bbll_MET/100_TeV/mH_1600_mB_225

@@ -1,0 +1,5 @@
+generate p p > t b~ w- $ t~, (w- > l- vl~) ,(t > w+ b, w+ > l+ vl) @0
+add process p p > t b~ w- j $ t~, (w- > l- vl~) ,(t > w+ b, w+ > l+ vl) @1
+add process p p > t~ b w+ $ t, (w+ > l+ vl) ,(t~ > w- b~, w- > l- vl~) @0
+add process p p > t~ b w+ j $ t, (w+ > l+ vl) ,(t~ > w- b~, w- > l- vl~) @1
+output tbW
