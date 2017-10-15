@@ -1,0 +1,3 @@
+generate_events
+shower=PYTHIA8
+delphes
