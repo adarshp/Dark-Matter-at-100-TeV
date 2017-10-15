@@ -13,3 +13,5 @@ cp $dm/Cards/delphes_cards/momentumResolutionVsP.tcl $process/Cards/
 cp $dm/Cards/delphes_cards/muonMomentumResolutionVsP.tcl $process/Cards/
 cp $dm/Cards/delphes_cards/FCChh.tcl $process/Cards/delphes_card.dat
 cp $dm/Cards/run_cards/run_card.dat $process/Cards/run_card.dat
+
+cd $dm
