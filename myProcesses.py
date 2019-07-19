@@ -1,13 +1,19 @@
 import os
 import sys
 import itertools as it
+from ConfigParser import SafeConfigParser
 import shutil as sh
 from collections import namedtuple
 import subprocess as sp
-sys.path.insert(0, '/extra/adarsh/clusterpheno')
+sys.path.insert(0, '../clusterpheno')
 from clusterpheno.Process import Process
 from clusterpheno.helpers import cd, modify_file, get_SAF_objects, Counter
 import numpy as np
+from tqdm import tqdm
+
+DM_DIR="/home/u13/adarsh/Dark-Matter-at-100-TeV"
+DM_CARDS_DIR="/home/u13/adarsh/Dark-Matter-at-100-TeV/Cards"
+PROSPINO_DIR="/home/u13/adarsh/Prospino2/"
 
 class Counter:
     def __init__(self, counter_object):
@@ -36,7 +42,7 @@ class Signal(Process):
         """, 100, self.index)
 
     def get_pair_prod_xsection(self):
-        with open('Cards/prospino_output_xsections/'+self.index+'_xsection.dat', 'r') as f:
+        with open(DM_CARDS_DIR+'/prospino_output_xsections/'+self.index+'_xsection.dat', 'r') as f:
             xs = float(f.readlines()[0].split()[-1:][0])
         return xs
 
@@ -55,7 +61,7 @@ class Signal(Process):
                     self.brh_bb = float(line.split()[0])
         
     def get_xsection(self):
-        with open('Cards/prospino_output_xsections/'+self.index+'_xsection.dat', 'r') as f:
+        with open(DM_CARDS_DIR+'/prospino_output_xsections/'+self.index+'_xsection.dat', 'r') as f:
             xs = float(f.readlines()[0].split()[-1:][0])
         self.get_branching_ratios()
         xs = xs*1000.0 # Convert from attobarns to fb
@@ -66,20 +72,20 @@ class Signal(Process):
         # xs = xs*0.5 # Apply Goldstone equivalence theorem
         return xs
 
-    def run_susyhit(self, susyhit_path = 'Tools/susyhit'):
+    def run_susyhit(self, susyhit_path = '/extra/adarsh/Tools/susyhit'):
         with cd(susyhit_path):
             with open('suspect2_lha.in', 'w') as f:
                 f.write(suspect_input_template.format(mH=str(self.mH),
                         mB=str(self.mB), mW="3000.",tb="10.0"))
             sp.call('./run', stdout = open(os.devnull, 'w'))
             sh.copy('slhaspectrum.in',
-                '../../Cards/prospino_input/'+self.index+'_slhaspectrum.in')
-            sh.copy('susyhit_slha.out', '../../Cards/param_cards/'+self.index+'_param_card.dat')
+                DM_CARDS_DIR+'/prospino_input/'+self.index+'_slhaspectrum.in')
+            sh.copy('susyhit_slha.out', DM_CARDS_DIR+'/param_cards/'+self.index+'_param_card.dat')
 
 
     def copy_param_card(self):
         name = 'mH_{}_mB_{}'.format(str(int(self.mH)), str(int(self.mB)))
-        sh.copy('Cards/param_cards/{}_param_card.dat'.format(name),
+        sh.copy(DM_CARDS_DIR+'/param_cards/{}_param_card.dat'.format(name),
                 self.directory+'/Cards/param_card.dat')
 
     def copy_bdt_analysis(self):
@@ -103,16 +109,16 @@ class Signal(Process):
     def run_prospino(self):
         """ Runs Prospino to get the Higgsino pair production cross section. """
 
-        input_spectrum = 'Cards/prospino_input/'+self.index+'_slhaspectrum.in'
-        sh.copy(input_spectrum, 'Tools/Prospino2/prospino.in.les_houches')
+        input_spectrum = DM_CARDS_DIR+'/prospino_input/'+self.index+'_slhaspectrum.in'
+        sh.copy(input_spectrum, PROSPINO_DIR+'/prospino.in.les_houches')
 
-        with cd('Tools/Prospino2'):
+        with cd(PROSPINO_DIR):
             devnull = open(os.devnull, 'w')
-            sp.call(['make', 'clean'], stdout = devnull, stderr = devnull)
-            sp.call('make', stdout = devnull, stderr = devnull)
-            sp.call('./prospino_2.run', stdout = devnull, stderr = devnull)
+            sp.call(['make', 'clean'])
+            sp.call('make')
+            sp.call('./prospino_2.run')
             sh.copy('prospino.dat',
-                '../../Cards/prospino_output_xsections/'+self.index+'_xsection.dat')
+                DM_CARDS_DIR+'/prospino_output_xsections/'+self.index+'_xsection.dat')
 
     def make_feature_array(self):
         with cd(self.directory+'/MakeFeatureArray/Build'):
@@ -166,3 +172,7 @@ backgrounds = tt_collection + tbW_collection + bbWW_collection
 #tt.xsection = 17425.0
 #tbW.xsection = 1488.0
 #bbWW.xsection = 73.0
+if __name__ == "__main__":
+    for signal in tqdm(signals[0:1]):
+        signal.run_susyhit()
+        signal.run_prospino()

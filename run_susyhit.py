@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,'/extra/adarsh/clusterpheno')
+sys.path.insert(0,'/rsgrps/shufang/clusterpheno')
 from clusterpheno.helpers import modify_file, cd
 import subprocess as sp
 import shutil as sh
@@ -28,4 +28,13 @@ def run_susyhit(signal):
                  '/'.join([dm_dir,'Cards/param_cards/',
                            signal.index+'_param_card.dat'])])
 
-map(run_susyhit,tqdm(signals, desc = 'running SUSY-HIT'))
+
+if __name__ == "__main__":
+    # map(run_susyhit,tqdm(signals, desc = 'running SUSY-HIT'))
+    with cd(susyhit_path):
+        set_params(1000, 25)
+        sp.call('./run')
+        sp.call(['cp','susyhit_slha.out',
+                 '/'.join([dm_dir,'Cards/param_cards/',
+                           signal.index+'_param_card.dat'])])
+
