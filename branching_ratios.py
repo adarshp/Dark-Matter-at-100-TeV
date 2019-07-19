@@ -85,6 +85,7 @@ def labelLines(lines,align=True,xvals=None,**kwargs):
 
     for line,x,label in zip(labLines,xvals,labels):
         labelLine(line,x,label,align,**kwargs)
+
 filename = 'branching_ratios.dat'
 pgf_with_rc_fonts = {
     "font.family": "serif",

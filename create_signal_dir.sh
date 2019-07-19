@@ -1,4 +1,4 @@
-# Create background directories for the DM project
+# Create signal directory for the DM project
 
 dm=`pwd`
 target_dir='/extra/adarsh/'

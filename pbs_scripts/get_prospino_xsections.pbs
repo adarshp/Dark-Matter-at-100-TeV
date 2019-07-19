@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -M adarsh@email.arizona.edu
+#PBS -N prospino_xsections
+#PBS -W group_list=shufang
+#PBS -q standard
+#PBS -l select=1:ncpus=1:mem=3gb
+#PBS -l cput=12:0:0
+#PBS -l walltime=12:0:0
+#PBS -l place=free:shared
+date
+cd /home/u13/adarsh/Dark-Matter-at-100-TeV
+time python myProcesses.py
+date
+exit 0

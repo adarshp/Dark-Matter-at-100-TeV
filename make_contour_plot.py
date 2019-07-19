@@ -24,6 +24,7 @@ pgf_with_rc_fonts = {
 }
 
 matplotlib.rcParams.update(pgf_with_rc_fonts)
+
 def figsize(scale):
     fig_width_pt = 281.0
     inches_per_pt = 1.0/72.27

@@ -1,5 +1,8 @@
 # Procedure to run the analysis:
 
+# Create signal directory
+source create_signal_dir.sh
+
 # set up MA5 environment variables.
 source setup.sh
 
