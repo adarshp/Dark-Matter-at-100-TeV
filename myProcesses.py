@@ -5,6 +5,7 @@ import shutil as sh
 from collections import namedtuple
 import subprocess as sp
 sys.path.insert(0, '/extra/adarsh/clusterpheno')
+sys.path.insert(0, '../clusterpheno')
 from clusterpheno.Process import Process
 from clusterpheno.helpers import cd, modify_file, get_SAF_objects, Counter
 import numpy as np
