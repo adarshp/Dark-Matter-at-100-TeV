@@ -1,14 +1,14 @@
 from tqdm import tqdm
 from myProcesses import signals
 import matplotlib
-matplotlib.use('pgf')
-matplotlib.rc('font', size = 10)
+matplotlib.rc('font', size = 12)
+matplotlib.rc('text', usetex=True)
 import numpy as np
 import matplotlib.pyplot as plt
 # For dissertation
 pgf_with_rc_fonts = {
     "font.family": "serif",
-    # "font.serif": ,
+    "pgf.rcfonts":False,
 }
 
 matplotlib.rcParams.update(pgf_with_rc_fonts)
@@ -23,20 +23,17 @@ def figsize(scale):
     # fig_size = [1.9,1.9]
     return fig_size
 
-plt.style.use('ggplot')
+# plt.style.use('ggplot')
 plt.figure(figsize=figsize(1.0))
 
 signals = [signal for signal in signals if signal.mB == 25.0]
 x = [signal.mH for signal in tqdm(signals)]
 y = [1000.*signal.get_pair_prod_xsection() for signal in tqdm(signals)]
-plt.style.use('ggplot')
-plt.ylabel(r'$\sigma(pp\rightarrow\widetilde{\chi_2^0}\widetilde{\chi_3^0})$ $\mathrm{(fb)}$',fontsize = 8)
-plt.xlabel(r'$\mu$ $\mathrm{(GeV)}$',fontsize = 8)
+plt.ylabel(r'$\sigma(pp\rightarrow\widetilde{\chi_2}^0\widetilde{\chi_3}^0)$ $\mathrm{(fb)}$',fontsize = 12)
+plt.xlabel('$\mu$ $\mathrm{(GeV)}$',fontsize = 12)
 plt.xlim(500,2500)
 plt.ylim(0.1,1000)
 plt.semilogy(x,y)
 plt.tight_layout()
 plt.savefig('images/xsection_plot.pgf')
 plt.savefig('images/xsection_plot.pdf')
-# z = [signal.get_pair_prod_xsection() for signal in signals[0:10]]
-

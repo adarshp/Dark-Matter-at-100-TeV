@@ -13,7 +13,8 @@ import numpy as np
 from tqdm import tqdm
 
 DM_DIR="/home/u13/adarsh/Dark-Matter-at-100-TeV"
-DM_CARDS_DIR="/home/u13/adarsh/Dark-Matter-at-100-TeV/Cards"
+DM_CARDS_DIR="Cards"
+# DM_CARDS_DIR="/home/u13/adarsh/Dark-Matter-at-100-TeV/Cards"
 PROSPINO_DIR="/home/u13/adarsh/Prospino2/"
 
 class Counter:
@@ -145,8 +146,12 @@ def mass_combinations(mH_min, mH_max, mH_step_size, mB_min, mB_max, mB_step_size
     namedtuples = [MassCombination(*_tuple) for _tuple in tuples]
     return filter(lambda x: x.mH > x.mB + 126., namedtuples)
 
-signals = [Signal(bp) for bp in mass_combinations(500.0, 2000.0, 100.0,
+# for xsection plot
+signals = [Signal(bp) for bp in mass_combinations(500.0, 2600.0, 100.0,
                                                   25.0, 1500.0, 100.0)]
+# for actual analysis
+# signals = [Signal(bp) for bp in mass_combinations(500.0, 2000.0, 100.0,
+                                                  # 25.0, 1500.0, 100.0)]
 
 tt_collection = [Process(
     'tt','sm','bbllvv',

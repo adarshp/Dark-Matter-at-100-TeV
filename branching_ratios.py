@@ -2,7 +2,9 @@
 from tqdm import tqdm
 from myProcesses import signals
 import matplotlib
-matplotlib.use('pgf')
+# matplotlib.use('pgf')
+matplotlib.rc('font', size = 12)
+matplotlib.rc('text', usetex=True)
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -12,7 +14,7 @@ import numpy as np
 #Label line with line2D label data
 def labelLine(line,x,label=None,align=True,**kwargs):
 
-    ax = line.get_axes()
+    ax = line.axes
     xdata = line.get_xdata()
     ydata = line.get_ydata()
 
@@ -56,7 +58,7 @@ def labelLine(line,x,label=None,align=True,**kwargs):
         kwargs['va'] = 'center'
 
     if 'backgroundcolor' not in kwargs:
-        kwargs['backgroundcolor'] = ax.get_axis_bgcolor()
+        kwargs['backgroundcolor'] = ax.get_facecolor()
 
     if 'clip_on' not in kwargs:
         kwargs['clip_on'] = True
@@ -64,11 +66,11 @@ def labelLine(line,x,label=None,align=True,**kwargs):
     if 'zorder' not in kwargs:
         kwargs['zorder'] = 2.5
 
-    ax.text(x,y,label,rotation=trans_angle,fontsize=7,**kwargs)
+    ax.text(x,y,label,rotation=trans_angle,fontsize=8,**kwargs)
 
 def labelLines(lines,align=True,xvals=None,**kwargs):
 
-    ax = lines[0].get_axes()
+    ax = lines[0].axes
     labLines = []
     labels = []
 
@@ -89,7 +91,7 @@ def labelLines(lines,align=True,xvals=None,**kwargs):
 filename = 'branching_ratios.dat'
 pgf_with_rc_fonts = {
     "font.family": "serif",
-    # "font.serif": ,
+    "font.sans-serif":"Helvetica"
 }
 
 matplotlib.rcParams.update(pgf_with_rc_fonts)
@@ -148,7 +150,6 @@ def make_contour_plot():
     Z2 = matplotlib.mlab.griddata(x,y,z2,xi,yi,interp='nn')
     Z3 = matplotlib.mlab.griddata(x,y,z3,xi,yi,interp='nn')
 
-    plt.style.use('ggplot')
     fmt = {}
 
     xline = np.arange(525,2500, 0.1) 
@@ -163,7 +164,7 @@ def make_contour_plot():
     plt.clabel(cs2,inline=1)
     plt.title(r'BR$(\widetilde{\chi}_{2}^0\widetilde{\chi}_3^0\rightarrow \widetilde{\chi}_1^0\widetilde{\chi}_1^0+hZ)$')
     plt.ylabel('M$_1$')
-    plt.xlabel('$|\mu|$')
+    plt.xlabel('$\mu$')
     plt.savefig('images/hZ.pdf')
     plt.cla()
 
@@ -185,19 +186,19 @@ def make_plot():
     y3 = df['br_chi3_Zchi1']
     y4 = df['br_chi3_hchi1']
     y5 = y1*y4 + y2*y3
-    plt.style.use('ggplot')
-    plt.xlabel(r'$|\mu|$ (GeV)',fontsize=8)
-    plt.ylabel(r'Branching ratio',fontsize=8)
+    plt.xlabel(r'$\mu$ (GeV)',fontsize=12)
+    plt.ylabel('Branching fraction',fontsize=12)
     plt.plot(x,y1, label = '$\widetilde{\chi}_2^0\\rightarrow \widetilde{\chi}_1^0 Z$')
     plt.plot(x,y2, label = '$\widetilde{\chi}_2^0\\rightarrow \widetilde{\chi}_1^0 h$')
     plt.plot(x,y3, label = '$\widetilde{\chi}_3^0\\rightarrow \widetilde{\chi}_1^0 Z$')
     plt.plot(x,y4, label = '$\widetilde{\chi}_3^0\\rightarrow \widetilde{\chi}_1^0 h$')
+    plt.xlim(500, 4000)
     plt.ylim(0.3, 0.7)
     lines = plt.gca().get_lines()
     labelLines(lines, align = True, xvals = [2500, 2500, 3500, 3500])
     plt.tight_layout()
     plt.savefig('images/br_plot.pdf')
-    plt.savefig('images/br_plot.pgf')
+    # plt.savefig('images/br_plot.pgf')
 
 if __name__ == '__main__':
     make_plot()
